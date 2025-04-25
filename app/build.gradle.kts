@@ -26,11 +26,11 @@ android {
     }
   }
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
   }
   kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = "11"
   }
   buildFeatures {
     viewBinding = true
@@ -38,6 +38,11 @@ android {
 }
 
 dependencies {
+  // define a BOM and its version
+  implementation(platform("com.squareup.okhttp3:okhttp-bom:4.12.0"))
+  // define any required OkHttp artifacts without version
+  implementation("com.squareup.okhttp3:okhttp")
+  implementation("com.squareup.okhttp3:logging-interceptor")
   implementation("androidx.core:core-ktx:1.16.0")
   implementation("androidx.appcompat:appcompat:1.7.0")
   implementation("com.google.android.material:material:1.12.0")
@@ -48,7 +53,7 @@ dependencies {
   implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
   // Retrofit for Network Requests
   implementation("com.squareup.retrofit2:retrofit:2.9.0")
-  implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+  implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
   implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
   // ViewModel
   implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
@@ -58,6 +63,7 @@ dependencies {
   // Serializable
   implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
   testImplementation("junit:junit:4.13.2")
+  testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
   androidTestImplementation("androidx.test.ext:junit:1.2.1")
   androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }

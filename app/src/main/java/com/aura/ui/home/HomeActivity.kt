@@ -19,7 +19,7 @@ import com.aura.ui.transfer.TransferActivity
 class HomeActivity : AppCompatActivity()
 {
 
-  private val viewModel: HomeViewModel by viewModels()
+  //private val viewModel: HomeViewModel by viewModels()
 
   /**
    * The binding for the home layout.

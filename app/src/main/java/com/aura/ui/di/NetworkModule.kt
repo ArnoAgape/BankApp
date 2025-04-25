@@ -1,6 +1,6 @@
 package com.aura.ui.di
 
-import com.aura.ui.data.network.BankClient
+import com.aura.ui.data.network.LoginClient
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -22,7 +22,7 @@ object NetworkModule {
     @Provides
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://127.0.0.1:8080/swagger")
+            .baseUrl("http://10.0.2.2:8080")
             .addConverterFactory(
                 MoshiConverterFactory.create(
                     Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
@@ -32,11 +32,12 @@ object NetworkModule {
             .build()
     }
 
-    // Provides a singleton instance of WeatherClient using Retrofit
+
+    // Provides a singleton instance of LoginClient using Retrofit
     @Singleton
     @Provides
-    fun provideWeatherClient(retrofit: Retrofit): BankClient {
-        return retrofit.create(BankClient::class.java)
+    fun provideLoginClient(retrofit: Retrofit): LoginClient {
+        return retrofit.create(LoginClient::class.java)
     }
 
     // Private function to configure OkHttpClient with an interceptor for logging

@@ -12,4 +12,8 @@
   <string name="prompt_recipient">Destinataire</string>
   <string name="prompt_amount">Montant</string>
   <string name="action_transfer">Faire le virement</string>
+
+  <string name="login_success">Connexion réussie</string>
+  <string name="login_fail">Identifiant ou mot de passe incorrect</string>
+  <string name="no_internet">Vérifiez votre connexion Internet</string>
 </resources>

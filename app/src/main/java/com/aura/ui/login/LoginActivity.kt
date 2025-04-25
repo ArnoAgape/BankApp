@@ -3,13 +3,16 @@ package com.aura.ui.login
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.aura.R
 import com.aura.databinding.ActivityLoginBinding
 import com.aura.ui.home.HomeActivity
-import com.aura.ui.home.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -19,7 +22,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 
-    private val viewModel: HomeViewModel by viewModels()
+    private val viewModel: LoginViewModel by viewModels()
 
     /**
      * The binding for the login layout.
@@ -40,8 +43,55 @@ class LoginActivity : AppCompatActivity() {
         login.isEnabled = false
 
         lifecycleScope.launch {
-            viewModel.isLoginEnabled.collect { isEnabled ->
-                binding.login.isEnabled = isEnabled
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Réactive le bouton selon les champs
+                launch {
+                    viewModel.isLoginEnabled.collect { isEnabled ->
+                        login.isEnabled = isEnabled
+                    }
+                }
+
+                // Écoute l'état de connexion
+                launch {
+                    viewModel.uiState.collect { state ->
+                        when (state.result) {
+                            LoginState.Success -> {
+                                loading.visibility = View.VISIBLE
+                                Toast.makeText(
+                                    this@LoginActivity,
+                                    getString(R.string.login_success),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
+                                finish()
+                            }
+
+                            LoginState.Error -> {
+                                loading.visibility = View.GONE
+                                Toast.makeText(
+                                    this@LoginActivity,
+                                    getString(R.string.login_fail),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            LoginState.NoInternet -> {
+                                loading.visibility = View.GONE
+                                Toast.makeText(
+                                    this@LoginActivity,
+                                    getString(R.string.no_internet),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            LoginState.Loading -> loading.visibility = View.VISIBLE
+
+                            else -> {
+                                loading.visibility = View.GONE
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -56,14 +106,7 @@ class LoginActivity : AppCompatActivity() {
         password.doAfterTextChanged { updateLoginButton() }
 
         login.setOnClickListener {
-
-            loading.visibility = View.VISIBLE
-
-            val intent = Intent(this@LoginActivity, HomeActivity::class.java)
-            startActivity(intent)
-
-            finish()
+            viewModel.loginData(identifier.text.toString(), password.text.toString())
         }
-
     }
 }

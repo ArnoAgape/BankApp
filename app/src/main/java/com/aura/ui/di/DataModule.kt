@@ -1,7 +1,7 @@
 package com.aura.ui.di
 
-import com.aura.ui.data.network.LoginClient
-import com.aura.ui.data.network.repository.LoginRepository
+import com.aura.ui.data.network.AuraClient
+import com.aura.ui.data.network.repository.AuraRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,7 +14,7 @@ object DataModule {
 
     @Singleton
     @Provides
-    fun provideLoginRepository(dataClient: LoginClient): LoginRepository {
-        return LoginRepository(dataClient)
+    fun provideLoginRepository(dataClient: AuraClient): AuraRepository {
+        return AuraRepository(dataClient)
     }
 }

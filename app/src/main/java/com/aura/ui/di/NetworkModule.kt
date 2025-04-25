@@ -1,6 +1,6 @@
 package com.aura.ui.di
 
-import com.aura.ui.data.network.LoginClient
+import com.aura.ui.data.network.AuraClient
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -36,8 +36,8 @@ object NetworkModule {
     // Provides a singleton instance of LoginClient using Retrofit
     @Singleton
     @Provides
-    fun provideLoginClient(retrofit: Retrofit): LoginClient {
-        return retrofit.create(LoginClient::class.java)
+    fun provideLoginClient(retrofit: Retrofit): AuraClient {
+        return retrofit.create(AuraClient::class.java)
     }
 
     // Private function to configure OkHttpClient with an interceptor for logging

@@ -13,6 +13,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.aura.R
 import com.aura.databinding.ActivityLoginBinding
 import com.aura.ui.home.HomeActivity
+import com.aura.ui.home.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -22,7 +23,8 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 
-    private val viewModel: LoginViewModel by viewModels()
+    private val loginViewModel: LoginViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by viewModels()
 
     /**
      * The binding for the login layout.
@@ -46,14 +48,14 @@ class LoginActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 // Réactive le bouton selon les champs
                 launch {
-                    viewModel.isLoginEnabled.collect { isEnabled ->
+                    loginViewModel.isLoginEnabled.collect { isEnabled ->
                         login.isEnabled = isEnabled
                     }
                 }
 
                 // Écoute l'état de connexion
                 launch {
-                    viewModel.uiState.collect { state ->
+                    loginViewModel.uiState.collect { state ->
                         when (state.result) {
                             LoginState.Success -> {
                                 loading.visibility = View.VISIBLE
@@ -96,7 +98,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         val updateLoginButton = {
-            viewModel.onLoginFieldsChanged(
+            loginViewModel.onLoginFieldsChanged(
                 identifier.text.toString(),
                 password.text.toString()
             )
@@ -106,7 +108,7 @@ class LoginActivity : AppCompatActivity() {
         password.doAfterTextChanged { updateLoginButton() }
 
         login.setOnClickListener {
-            viewModel.loginData(identifier.text.toString(), password.text.toString())
+            loginViewModel.loginData(identifier.text.toString(), password.text.toString())
         }
     }
 }

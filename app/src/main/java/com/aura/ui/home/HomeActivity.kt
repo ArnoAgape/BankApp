@@ -8,10 +8,17 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.aura.R
 import com.aura.databinding.ActivityHomeBinding
+import com.aura.ui.domain.model.UserModel
 import com.aura.ui.login.LoginActivity
+import com.aura.ui.login.LoginViewModel
 import com.aura.ui.transfer.TransferActivity
+import kotlinx.coroutines.launch
 
 /**
  * The home activity for the app.
@@ -19,7 +26,8 @@ import com.aura.ui.transfer.TransferActivity
 class HomeActivity : AppCompatActivity()
 {
 
-  //private val viewModel: HomeViewModel by viewModels()
+  private val homeViewModel: HomeViewModel by viewModels()
+  private val loginViewModel: LoginViewModel by viewModels()
 
   /**
    * The binding for the home layout.
@@ -49,6 +57,16 @@ class HomeActivity : AppCompatActivity()
     transfer.setOnClickListener {
       startTransferActivityForResult.launch(Intent(this@HomeActivity, TransferActivity::class.java))
     }
+  }
+
+  private fun updateCurrentWeather(forecast: List<UserModel>) {
+    customAdapter.submitList(forecast)
+  }
+
+  private fun defineRecyclerView() {
+    val layoutManager = LinearLayoutManager(applicationContext)
+    binding.recyclerView.layoutManager = layoutManager
+    binding.recyclerView.adapter = customAdapter
   }
 
   override fun onCreateOptionsMenu(menu: Menu?): Boolean

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aura.ui.data.network.repository.AuraRepository
 import com.aura.ui.domain.model.UserModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,18 +13,23 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
+@HiltViewModel
 class HomeViewModel @Inject constructor(private val dataRepository: AuraRepository) :
     ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUISTate())
     val uiState: StateFlow<HomeUISTate> = _uiState.asStateFlow()
 
-    fun getUserData(id: String, password: String) {
+    init { getUserData() }
+
+    fun getUserData() {
+        val id = "1234"
+        val password = "p@sswOrd"
         dataRepository.fetchUserData(id, password)
             .onEach { state ->
                 _uiState.update { currentState ->
                     currentState.copy(
-                        account = state
+                        balance = state
                     )
                 }
             }
@@ -32,5 +38,5 @@ class HomeViewModel @Inject constructor(private val dataRepository: AuraReposito
 }
 
 data class HomeUISTate(
-    val account:List<UserModel> = emptyList()
+    val balance:List<UserModel> = emptyList()
 )

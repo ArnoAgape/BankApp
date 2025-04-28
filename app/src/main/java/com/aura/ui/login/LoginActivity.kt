@@ -24,7 +24,6 @@ import kotlinx.coroutines.launch
 class LoginActivity : AppCompatActivity() {
 
     private val loginViewModel: LoginViewModel by viewModels()
-    private val homeViewModel: HomeViewModel by viewModels()
 
     /**
      * The binding for the login layout.

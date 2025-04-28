@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -16,23 +17,27 @@ import com.aura.R
 import com.aura.databinding.ActivityHomeBinding
 import com.aura.ui.domain.model.UserModel
 import com.aura.ui.login.LoginActivity
-import com.aura.ui.login.LoginViewModel
 import com.aura.ui.transfer.TransferActivity
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 /**
  * The home activity for the app.
  */
-class HomeActivity : AppCompatActivity()
-{
+@AndroidEntryPoint
+class HomeActivity : AppCompatActivity(), BalanceAdapter.OnItemClickListener {
 
   private val homeViewModel: HomeViewModel by viewModels()
-  private val loginViewModel: LoginViewModel by viewModels()
 
   /**
    * The binding for the home layout.
    */
   private lateinit var binding: ActivityHomeBinding
+
+  /**
+   * The adapter for the recycler view.
+   */
+  private val customAdapter = BalanceAdapter(this)
 
   /**
    * A callback for the result of starting the TransferActivity.
@@ -48,19 +53,25 @@ class HomeActivity : AppCompatActivity()
 
     binding = ActivityHomeBinding.inflate(layoutInflater)
     setContentView(binding.root)
+    defineRecyclerView()
 
-    val balance = binding.balance
+    lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        homeViewModel.uiState.collect {
+          updateCurrentBalance(it.balance)
+        }
+      }
+    }
+
     val transfer = binding.transfer
-
-    balance.text = "2654,54€"
 
     transfer.setOnClickListener {
       startTransferActivityForResult.launch(Intent(this@HomeActivity, TransferActivity::class.java))
     }
   }
 
-  private fun updateCurrentWeather(forecast: List<UserModel>) {
-    customAdapter.submitList(forecast)
+  private fun updateCurrentBalance(balance: List<UserModel>) {
+    customAdapter.submitList(balance)
   }
 
   private fun defineRecyclerView() {
@@ -85,8 +96,13 @@ class HomeActivity : AppCompatActivity()
         finish()
         true
       }
-      else            -> super.onOptionsItemSelected(item)
+      else -> super.onOptionsItemSelected(item)
     }
+  }
+
+  override fun onItemClick(item: UserModel) {
+    Toast.makeText(this, "Ceci est le compte ${item.main}", Toast.LENGTH_SHORT)
+      .show()
   }
 
 }

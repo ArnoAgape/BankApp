@@ -5,7 +5,9 @@
   <string name="prompt_password">Mot de passe</string>
   <string name="action_sign_in">Connexion</string>
 
-  <string name="balance">Balance :</string>
+  <string name="balance">Solde :</string>
+  <string name="main">Compte principal</string>
+  <string name="secondary">Compte secondaire</string>
   <string name="disconnect">Déconnexion</string>
   <string name="bank_transfer">Faire un virement</string>
 

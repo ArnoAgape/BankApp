@@ -6,7 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -24,95 +25,93 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class HomeActivity : AppCompatActivity(), BalanceAdapter.OnItemClickListener {
+class HomeActivity : AppCompatActivity() {
 
-  private val homeViewModel: HomeViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by viewModels()
 
-  /**
-   * The binding for the home layout.
-   */
-  private lateinit var binding: ActivityHomeBinding
+    /**
+     * The binding for the home layout.
+     */
+    private lateinit var binding: ActivityHomeBinding
 
-  /**
-   * The adapter for the recycler view.
-   */
-  private val customAdapter = BalanceAdapter(this)
+    /**
+     * The adapter for the recycler view.
+     */
+    private val customAdapter = BalanceAdapter()
 
-  /**
-   * A callback for the result of starting the TransferActivity.
-   */
-  private val startTransferActivityForResult =
-    registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-      //TODO
-    }
-
-  override fun onCreate(savedInstanceState: Bundle?)
-  {
-    super.onCreate(savedInstanceState)
-
-    binding = ActivityHomeBinding.inflate(layoutInflater)
-    setContentView(binding.root)
-    defineRecyclerView()
-    homeViewModel.getUserId(intent.getStringExtra(USER_ID).toString())
-
-    lifecycleScope.launch {
-      repeatOnLifecycle(Lifecycle.State.STARTED) {
-        homeViewModel.uiState.collect {
-          updateCurrentBalance(it.balance)
+    /**
+     * A callback for the result of starting the TransferActivity.
+     */
+    private val startTransferActivityForResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            //TODO
         }
-      }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        binding = ActivityHomeBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        binding.title.setText(R.string.balance)
+        defineRecyclerView()
+        homeViewModel.getUserId(intent.getStringExtra(USER_ID).toString())
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                homeViewModel.uiState.collect {
+                    updateCurrentBalance(it.balance)
+                }
+            }
+        }
+
+        val transfer = binding.transfer
+
+        transfer.setOnClickListener {
+            startTransferActivityForResult.launch(
+                Intent(
+                    this@HomeActivity,
+                    TransferActivity::class.java
+                )
+            )
+        }
     }
 
-    val transfer = binding.transfer
-
-    transfer.setOnClickListener {
-      startTransferActivityForResult.launch(Intent(this@HomeActivity, TransferActivity::class.java))
+    private fun updateCurrentBalance(userDetails: List<UserModel>) {
+        Log.d("HomeActivity", "Taille de la liste : ${userDetails.size}")
+        customAdapter.submitList(userDetails)
     }
-  }
 
-  private fun updateCurrentBalance(userDetails: List<UserModel>) {
-    Log.d("HomeActivity", "Taille de la liste : ${userDetails.size}")
-    customAdapter.submitList(userDetails)
-  }
-
-  private fun defineRecyclerView() {
-    val layoutManager = LinearLayoutManager(this)
-    binding.recyclerView.layoutManager = layoutManager
-    binding.recyclerView.adapter = customAdapter
-  }
-
-  override fun onCreateOptionsMenu(menu: Menu?): Boolean
-  {
-    menuInflater.inflate(R.menu.home_menu, menu)
-    return true
-  }
-
-  override fun onOptionsItemSelected(item: MenuItem): Boolean
-  {
-    return when (item.itemId)
-    {
-      R.id.disconnect ->
-      {
-        startActivity(Intent(this@HomeActivity, LoginActivity::class.java))
-        finish()
-        true
-      }
-      else -> super.onOptionsItemSelected(item)
+    private fun defineRecyclerView() {
+        val layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.layoutManager = layoutManager
+        binding.recyclerView.adapter = customAdapter
     }
-  }
 
-  override fun onItemClick(item: UserModel) {
-    Toast.makeText(this, "Ceci est le compte ${item.main}", Toast.LENGTH_SHORT)
-      .show()
-  }
-
-  companion object {
-    fun startActivity(context: Context, userId: String) {
-      val intent = Intent(context, HomeActivity::class.java)
-      intent.putExtra(USER_ID, userId)
-      context.startActivity(intent)
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.home_menu, menu)
+        return true
     }
-    private const val USER_ID = "userId"
-  }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.disconnect -> {
+                startActivity(Intent(this@HomeActivity, LoginActivity::class.java))
+                finish()
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    companion object {
+        fun startActivity(context: Context, userId: String) {
+            val intent = Intent(context, HomeActivity::class.java)
+            intent.putExtra(USER_ID, userId)
+            context.startActivity(intent)
+        }
+
+        private const val USER_ID = "userId"
+    }
 
 }

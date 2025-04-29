@@ -1,7 +1,9 @@
 package com.aura.ui.login
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -28,6 +30,7 @@ class LoginActivity : AppCompatActivity() {
      */
     private lateinit var binding: ActivityLoginBinding
 
+    @SuppressLint("ServiceCast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -106,6 +109,11 @@ class LoginActivity : AppCompatActivity() {
         password.doAfterTextChanged { updateLoginButton() }
 
         login.setOnClickListener {
+            // cache le clavier
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+
+            // appel de la fonction de connexion
             loginViewModel.loginData(identifier.text.toString(), password.text.toString())
         }
     }

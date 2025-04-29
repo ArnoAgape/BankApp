@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aura.ui.data.network.repository.AuraRepository
 import com.aura.ui.domain.model.UserModel
+import com.aura.ui.login.LoginState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,5 +38,6 @@ class HomeViewModel @Inject constructor(private val dataRepository: AuraReposito
 }
 
 data class HomeUIState(
+    val result: LoginState = LoginState.Idle,
     val balance:List<UserModel> = emptyList()
 )

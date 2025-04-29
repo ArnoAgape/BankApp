@@ -4,16 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@color/white"
+    android:layout_marginTop="30dp"
+    android:orientation="vertical">
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/account"
         style="@style/TextAppearance.Material3.BodyLarge"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:text="@string/balance"
+        android:text="@string/main"
         app:layout_constraintBottom_toTopOf="@id/balance"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

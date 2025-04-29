@@ -23,12 +23,18 @@ class AuraRepository(private val dataService: AuraClient) {
         Log.e("LoginRepository", error.message ?: "")
     }
 
-    fun fetchUserData(id: String, password: String): Flow<List<UserModel>> = flow {
-        val request = dataService.userDetails(id, password)
-        Log.d("fetchUserData", "Reçu: id=$id, password=$password")
-        val model = request.body()?.toDomainModel() ?: throw Exception ("Invalid data")
+    fun fetchUserData(id: String): Flow<List<UserModel>> = flow {
+        val accounts = dataService.userId(id)
+        Log.d("fetchUserData", "Reçu: id=$id")
+        val model = accounts.map { account ->
+            UserModel(
+                id = account.id,
+                main = account.main,
+                balance = account.balance
+            )
+        }
         emit(model)
     }.catch { error ->
-            Log.e("WeatherRepository", error.message ?: "")
-        }
+        Log.e("WeatherRepository", error.message ?: "")
+    }
 }

@@ -1,6 +1,5 @@
 package com.aura.ui.login
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -13,7 +12,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.aura.R
 import com.aura.databinding.ActivityLoginBinding
 import com.aura.ui.home.HomeActivity
-import com.aura.ui.home.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -47,8 +45,8 @@ class LoginActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 // Réactive le bouton selon les champs
                 launch {
-                    loginViewModel.isLoginEnabled.collect { isEnabled ->
-                        login.isEnabled = isEnabled
+                    loginViewModel.uiState.collect { state ->
+                        login.isEnabled = state.isLoginEnabled
                     }
                 }
 
@@ -63,7 +61,8 @@ class LoginActivity : AppCompatActivity() {
                                     getString(R.string.login_success),
                                     Toast.LENGTH_SHORT
                                 ).show()
-                                startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
+                                val userId = identifier.text.toString()
+                                HomeActivity.startActivity(this@LoginActivity, userId)
                                 finish()
                             }
 

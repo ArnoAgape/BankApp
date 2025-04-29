@@ -16,13 +16,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(private val dataRepository: AuraRepository) : ViewModel() {
-    private val _isLoginEnabled = MutableStateFlow(false)
-    val isLoginEnabled: StateFlow<Boolean> = _isLoginEnabled
     private val _uiState = MutableStateFlow(LoginUIState(LoginState.Idle))
     val uiState: StateFlow<LoginUIState> = _uiState.asStateFlow()
 
     fun onLoginFieldsChanged(id: String, password: String) {
-        _isLoginEnabled.value = id.isNotBlank() && password.isNotBlank()
+        _uiState.update {
+            it.copy(
+                isLoginEnabled = id.isNotBlank() && password.isNotBlank()
+            )
+        }
     }
 
     fun loginData(id: String, password: String) {
@@ -46,5 +48,6 @@ class LoginViewModel @Inject constructor(private val dataRepository: AuraReposit
 }
 
 data class LoginUIState(
-    var result: LoginState = LoginState.Idle
+    val result: LoginState = LoginState.Idle,
+    val isLoginEnabled: Boolean = false
 )

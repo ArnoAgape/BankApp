@@ -1,7 +1,9 @@
 package com.aura.ui.home
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -21,9 +23,6 @@ import com.aura.ui.transfer.TransferActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-/**
- * The home activity for the app.
- */
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity(), BalanceAdapter.OnItemClickListener {
 
@@ -54,6 +53,7 @@ class HomeActivity : AppCompatActivity(), BalanceAdapter.OnItemClickListener {
     binding = ActivityHomeBinding.inflate(layoutInflater)
     setContentView(binding.root)
     defineRecyclerView()
+    homeViewModel.getUserId(intent.getStringExtra(USER_ID).toString())
 
     lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -70,12 +70,13 @@ class HomeActivity : AppCompatActivity(), BalanceAdapter.OnItemClickListener {
     }
   }
 
-  private fun updateCurrentBalance(balance: List<UserModel>) {
-    customAdapter.submitList(balance)
+  private fun updateCurrentBalance(userDetails: List<UserModel>) {
+    Log.d("HomeActivity", "Taille de la liste : ${userDetails.size}")
+    customAdapter.submitList(userDetails)
   }
 
   private fun defineRecyclerView() {
-    val layoutManager = LinearLayoutManager(applicationContext)
+    val layoutManager = LinearLayoutManager(this)
     binding.recyclerView.layoutManager = layoutManager
     binding.recyclerView.adapter = customAdapter
   }
@@ -103,6 +104,15 @@ class HomeActivity : AppCompatActivity(), BalanceAdapter.OnItemClickListener {
   override fun onItemClick(item: UserModel) {
     Toast.makeText(this, "Ceci est le compte ${item.main}", Toast.LENGTH_SHORT)
       .show()
+  }
+
+  companion object {
+    fun startActivity(context: Context, userId: String) {
+      val intent = Intent(context, HomeActivity::class.java)
+      intent.putExtra(USER_ID, userId)
+      context.startActivity(intent)
+    }
+    private const val USER_ID = "userId"
   }
 
 }

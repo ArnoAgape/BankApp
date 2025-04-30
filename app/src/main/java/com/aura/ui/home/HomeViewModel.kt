@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aura.ui.data.network.repository.AuraRepository
 import com.aura.ui.domain.model.UserModel
-import com.aura.ui.login.LoginState
+import com.aura.ui.login.State
+import com.aura.ui.di.errors.NoConnectionException
+import com.aura.ui.di.errors.ServerUnavailableException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,13 +26,35 @@ class HomeViewModel @Inject constructor(private val dataRepository: AuraReposito
     val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
 
     fun getUserId(id: String) {
+        _uiState.update {
+            it.copy(result = State.Loading)
+        }
+
         dataRepository.fetchUserData(id)
-            .catch { error ->
-                Log.e("HomeViewModel", "Erreur pendant la récupération des données : ${error.message}")
-            }
             .onEach { state ->
-                _uiState.update { currentState ->
-                    currentState.copy(balance = state)
+                _uiState.update {
+                    it.copy(
+                        balance = state,
+                        result = State.Success
+                    )
+                }
+            }
+            .catch { error ->
+                Log.e(
+                    "HomeViewModel",
+                    "Erreur pendant la récupération des données : ${error.message}"
+                )
+                if (error is NoConnectionException) {
+                    _uiState.update {
+                        it.copy(result = State.Error.NoInternet)
+                    }
+                }
+                if (error is ServerUnavailableException) {
+                    _uiState.update {
+                        it.copy(result = State.Error.Server)
+                    }
+                } else _uiState.update {
+                    it.copy(result = State.Error.UnknownError)
                 }
             }
             .launchIn(viewModelScope)
@@ -38,6 +62,6 @@ class HomeViewModel @Inject constructor(private val dataRepository: AuraReposito
 }
 
 data class HomeUIState(
-    val result: LoginState = LoginState.Idle,
-    val balance:List<UserModel> = emptyList()
+    val result: State = State.Idle,
+    val balance: List<UserModel> = emptyList()
 )

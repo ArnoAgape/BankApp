@@ -1,7 +1,10 @@
 package com.aura.ui.login
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -57,8 +60,7 @@ class LoginActivity : AppCompatActivity() {
                 launch {
                     loginViewModel.uiState.collect { state ->
                         when (state.result) {
-                            LoginState.Success -> {
-                                loading.visibility = View.VISIBLE
+                            State.Success -> {
                                 Toast.makeText(
                                     this@LoginActivity,
                                     getString(R.string.login_success),
@@ -69,7 +71,7 @@ class LoginActivity : AppCompatActivity() {
                                 finish()
                             }
 
-                            LoginState.Error -> {
+                            State.Error.LoginError -> {
                                 loading.visibility = View.GONE
                                 Toast.makeText(
                                     this@LoginActivity,
@@ -78,7 +80,16 @@ class LoginActivity : AppCompatActivity() {
                                 ).show()
                             }
 
-                            LoginState.NoInternet -> {
+                            State.Error.Server -> {
+                                loading.visibility = View.GONE
+                                Toast.makeText(
+                                    this@LoginActivity,
+                                    getString(R.string.error_server),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            State.Error.NoInternet -> {
                                 loading.visibility = View.GONE
                                 Toast.makeText(
                                     this@LoginActivity,
@@ -87,7 +98,7 @@ class LoginActivity : AppCompatActivity() {
                                 ).show()
                             }
 
-                            LoginState.Loading -> loading.visibility = View.VISIBLE
+                            State.Loading -> loading.visibility = View.VISIBLE
 
                             else -> {
                                 loading.visibility = View.GONE
@@ -117,4 +128,10 @@ class LoginActivity : AppCompatActivity() {
             loginViewModel.loginData(identifier.text.toString(), password.text.toString())
         }
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.login_menu, menu)
+        return true
+    }
+
 }

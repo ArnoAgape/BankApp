@@ -4,11 +4,13 @@
   <string name="prompt_identifier">Identifiant</string>
   <string name="prompt_password">Mot de passe</string>
   <string name="action_sign_in">Connexion</string>
+  <string name="action_try_again">Réessayer</string>
 
   <string name="balance">Solde :</string>
   <string name="main">Compte principal</string>
   <string name="secondary">Compte secondaire</string>
   <string name="disconnect">Déconnexion</string>
+  <string name="reload">Recharger</string>
   <string name="bank_transfer">Faire un virement</string>
 
   <string name="prompt_recipient">Destinataire</string>
@@ -18,4 +20,7 @@
   <string name="login_success">Connexion réussie</string>
   <string name="login_fail">Identifiant ou mot de passe incorrect</string>
   <string name="no_internet">Vérifiez votre connexion Internet</string>
+  <string name="error_server">Le serveur est inaccessible, réessayez plus tard</string>
+  <string name="try_again">Une erreur est survenue, appuyez sur le bouton pour relancer la page</string>
+  <string name="unknown_error">Erreur inconnue</string>
 </resources>

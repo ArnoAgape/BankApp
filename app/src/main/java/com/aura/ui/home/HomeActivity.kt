@@ -7,7 +7,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -20,6 +20,7 @@ import com.aura.R
 import com.aura.databinding.ActivityHomeBinding
 import com.aura.ui.domain.model.UserModel
 import com.aura.ui.login.LoginActivity
+import com.aura.ui.login.State
 import com.aura.ui.transfer.TransferActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -52,19 +53,66 @@ class HomeActivity : AppCompatActivity() {
 
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.title.setText(R.string.balance)
+
+        val loading = binding.loading
+        val retry = binding.tryAgain
+        val transfer = binding.transfer
+        val errorMessage = binding.errorMessage
+
         defineRecyclerView()
         homeViewModel.getUserId(intent.getStringExtra(USER_ID).toString())
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                homeViewModel.uiState.collect {
-                    updateCurrentBalance(it.balance)
+                homeViewModel.uiState.collect { state ->
+                    when (state.result) {
+                        State.Success -> {
+                            updateCurrentBalance(state.balance)
+                            loading.visibility = View.GONE
+                            retry.visibility = View.INVISIBLE
+                            errorMessage.visibility = View.INVISIBLE
+                        }
+
+                        State.Error.NoInternet -> {
+                            loading.visibility = View.GONE
+                            retry.visibility = View.VISIBLE
+                            errorMessage.visibility = View.VISIBLE
+                            Toast.makeText(
+                                this@HomeActivity,
+                                getString(R.string.no_internet),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        State.Error.Server -> {
+                            loading.visibility = View.GONE
+                            retry.visibility = View.VISIBLE
+                            errorMessage.visibility = View.VISIBLE
+                            Toast.makeText(
+                                this@HomeActivity,
+                                getString(R.string.error_server),
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                        }
+
+                        State.Loading -> loading.visibility = View.VISIBLE
+
+                        else -> {
+                            loading.visibility = View.GONE
+                        }
+                    }
                 }
+
             }
         }
 
-        val transfer = binding.transfer
+        retry.setOnClickListener {
+            val userId = intent.getStringExtra(USER_ID)
+            if (userId != null) {
+                homeViewModel.getUserId(userId)
+            }
+        }
 
         transfer.setOnClickListener {
             startTransferActivityForResult.launch(
@@ -97,6 +145,14 @@ class HomeActivity : AppCompatActivity() {
             R.id.disconnect -> {
                 startActivity(Intent(this@HomeActivity, LoginActivity::class.java))
                 finish()
+                true
+            }
+
+            R.id.reload -> {
+                val userId = intent.getStringExtra(USER_ID)
+                if (userId != null) {
+                    homeViewModel.getUserId(userId)
+                }
                 true
             }
 

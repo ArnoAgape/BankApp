@@ -2,6 +2,7 @@ package com.aura.ui.home
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -20,8 +21,11 @@ class BalanceAdapter() :
         @SuppressLint("SetTextI18n")
         fun bind(user: UserModel) {
             val balance = user.balance.toString()
-            if (user.main) binding.account.setText(R.string.main) else binding.account.setText(R.string.secondary)
-            binding.balance.text = "$balance €"
+            if (user.main) {
+                binding.account.setText(R.string.balance)
+                binding.balance.text = "$balance €"
+            }
+            else binding.account.visibility = View.GONE
         }
     }
 

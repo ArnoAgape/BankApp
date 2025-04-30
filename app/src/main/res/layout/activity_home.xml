@@ -8,19 +8,6 @@
   tools:context=".ui.home.HomeActivity"
   >
 
-  <TextView
-      android:id="@+id/title"
-      style="@style/TextAppearance.Material3.BodyLarge"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:gravity="center"
-      android:text="@string/balance"
-      android:layout_marginTop="180dp"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_chainStyle="packed" />
-
   <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/recycler_view"
       android:background="@color/white"
@@ -29,6 +16,38 @@
       android:layout_height="match_parent"
       android:overScrollMode="never"
       tools:listitem="@layout/item_balance"/>
+
+  <TextView
+      android:id="@+id/error_message"
+      style="@style/TextAppearance.Material3.BodyLarge"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="start"
+      android:layout_marginTop="16dp"
+      android:layout_marginBottom="10dp"
+      android:textSize = "11sp"
+      android:text="@string/try_again"
+      android:visibility="gone"
+      app:layout_constraintTop_toBottomOf="@id/try_again"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintVertical_chainStyle="packed" />
+
+  <Button
+      android:id="@+id/try_again"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="start"
+      android:layout_marginTop="16dp"
+      android:layout_marginBottom="64dp"
+      android:text="@string/action_try_again"
+      android:visibility="invisible"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="@+id/recycler_view"
+      app:layout_constraintVertical_bias="0.2"
+      />
 
   <com.google.android.material.floatingactionbutton.FloatingActionButton
     android:id="@+id/transfer"
@@ -40,5 +59,17 @@
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     />
+
+  <ProgressBar
+      android:id="@+id/loading"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:visibility="gone"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintVertical_bias="0.3"
+      />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

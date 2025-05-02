@@ -167,7 +167,7 @@ class HomeActivity : AppCompatActivity() {
             context.startActivity(intent)
         }
 
-        private const val USER_ID = "userId"
+        internal const val USER_ID = "userId"
     }
 
 }

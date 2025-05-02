@@ -8,6 +8,7 @@ import com.aura.ui.domain.model.LoginModel
 import com.aura.ui.domain.model.UserModel
 import com.aura.ui.di.errors.NoConnectionException
 import com.aura.ui.di.errors.ServerUnavailableException
+import com.aura.ui.transfer.TransferModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -31,7 +32,7 @@ class AuraRepository @Inject constructor(@ApplicationContext context: Context, p
                 if (!networkChecker.hasInternetConnection()) {
                     throw NoConnectionException() // Pas d'internet
                 } else {
-                    throw ServerUnavailableException()
+                    throw ServerUnavailableException() // Erreur serveur
                 }
             }
 
@@ -51,7 +52,6 @@ class AuraRepository @Inject constructor(@ApplicationContext context: Context, p
         }
         emit(model)
     }.catch { error ->
-        Log.e("WeatherRepository", error.message ?: "")
         when (error) {
             is IOException -> {
                 if (!networkChecker.hasInternetConnection()) {
@@ -64,4 +64,24 @@ class AuraRepository @Inject constructor(@ApplicationContext context: Context, p
             else -> throw error // Erreur inconnue
         }
     }
+
+    fun fetchTransferData(sender: String, recipient: String, amount: Double): Flow<Boolean> = flow {
+        val request = dataService.transferDetails(TransferModel(sender, recipient, amount))
+        Log.d("fetchTransferData", "Envoyé: sender=$sender, recipient=$recipient, amount=$amount")
+        emit(request.result)
+    }.catch { error ->
+        Log.e("AuraRepository", error.message ?: "")
+        when (error) {
+            is IOException -> {
+                if (!networkChecker.hasInternetConnection()) {
+                    throw NoConnectionException() // Pas d'internet
+                } else {
+                    throw ServerUnavailableException() // Erreur serveur
+                }
+            }
+
+            else -> throw error // Erreur inconnue
+        }
+    }
+
 }

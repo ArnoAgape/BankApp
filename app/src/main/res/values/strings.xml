@@ -19,6 +19,11 @@
 
   <string name="login_success">Connexion réussie</string>
   <string name="login_fail">Identifiant ou mot de passe incorrect</string>
+
+  <string name="transfer_success">Virement réussi</string>
+  <string name="transfer_failed">Solde insuffisant</string>
+  <string name="id_recipient_fail">Destinataire inconnu</string>
+
   <string name="no_internet">Vérifiez votre connexion Internet</string>
   <string name="error_server">Le serveur est inaccessible, réessayez plus tard</string>
   <string name="try_again">Une erreur est survenue, appuyez sur le bouton pour relancer la page</string>

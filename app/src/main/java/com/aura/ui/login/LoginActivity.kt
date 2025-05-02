@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 /**
  * The login activity for the app.
  */
+
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 

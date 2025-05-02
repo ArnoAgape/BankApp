@@ -1,6 +1,8 @@
 package com.aura.ui.transfer
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -46,6 +48,9 @@ class TransferActivity : AppCompatActivity() {
         val loading = binding.loading
 
         transfer.isEnabled = false
+
+        val userId = intent.getStringExtra(USER_ID) ?: ""
+        Log.d("fetch", userId)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -127,9 +132,8 @@ class TransferActivity : AppCompatActivity() {
             imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
 
             // appel de la fonction de transfert
-            val userId = intent.getStringExtra(USER_ID)
             transferViewModel.transferData(
-                userId.toString(),
+                userId,
                 recipient.text.toString(),
                 amount.text.toString()
             )
@@ -148,5 +152,7 @@ class TransferActivity : AppCompatActivity() {
         amount.doAfterTextChanged { updateTransferButton() }
 
     }
-
+    companion object {
+        const val USER_ID = "userId"
+    }
 }

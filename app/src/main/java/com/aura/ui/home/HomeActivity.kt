@@ -115,12 +115,10 @@ class HomeActivity : AppCompatActivity() {
         }
 
         transfer.setOnClickListener {
-            startTransferActivityForResult.launch(
-                Intent(
-                    this@HomeActivity,
-                    TransferActivity::class.java
-                )
-            )
+            val userId = intent.getStringExtra(USER_ID) ?: return@setOnClickListener
+            val intent = Intent(this@HomeActivity, TransferActivity::class.java)
+            intent.putExtra(USER_ID, userId)
+            startTransferActivityForResult.launch(intent)
         }
     }
 

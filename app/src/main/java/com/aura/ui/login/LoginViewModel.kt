@@ -17,6 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(private val dataRepository: AuraRepository) : ViewModel() {
+
     private val _uiState = MutableStateFlow(LoginUIState(State.Idle))
     val uiState: StateFlow<LoginUIState> = _uiState.asStateFlow()
 
@@ -32,7 +33,6 @@ class LoginViewModel @Inject constructor(private val dataRepository: AuraReposit
         _uiState.update {
             it.copy(result = State.Loading)
         }
-
             dataRepository.fetchLoginData(id, password)
                 .onEach { isGranted ->
                     _uiState.update {

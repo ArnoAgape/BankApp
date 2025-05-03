@@ -1,5 +1,6 @@
 package com.aura.ui.transfer
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +16,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.aura.R
 import com.aura.databinding.ActivityTransferBinding
 import com.aura.ui.home.HomeActivity
+import com.aura.ui.home.HomeActivity.Companion.BALANCE
 import com.aura.ui.home.HomeActivity.Companion.USER_ID
 import com.aura.ui.login.LoginActivity
 import com.aura.ui.login.State
@@ -50,7 +52,7 @@ class TransferActivity : AppCompatActivity() {
         transfer.isEnabled = false
 
         val userId = intent.getStringExtra(USER_ID) ?: ""
-        Log.d("fetch", userId)
+        val balance = intent.getDoubleExtra(BALANCE, 0.0)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -64,6 +66,7 @@ class TransferActivity : AppCompatActivity() {
                 // Écoute l'état de connexion
                 launch {
                     transferViewModel.uiState.collect { state ->
+                        Log.d("TransferActivity", "État actuel = ${state.result}")
                         when (state.result) {
                             State.Success -> {
                                 Toast.makeText(
@@ -71,8 +74,9 @@ class TransferActivity : AppCompatActivity() {
                                     getString(R.string.transfer_success),
                                     Toast.LENGTH_SHORT
                                 ).show()
-                                val userId = USER_ID
-                                HomeActivity.startActivity(this@TransferActivity, userId)
+                                val userId = intent.getStringExtra(USER_ID) ?: ""
+                                val balance = intent.getDoubleExtra(BALANCE, 0.0)
+                                HomeActivity.startActivity(this@TransferActivity, userId, balance)
                                 setResult(RESULT_OK)
                                 finish()
                             }
@@ -125,8 +129,6 @@ class TransferActivity : AppCompatActivity() {
         }
 
         transfer.setOnClickListener {
-            loading.visibility = View.VISIBLE
-
             // cache le clavier
             val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
@@ -135,11 +137,9 @@ class TransferActivity : AppCompatActivity() {
             transferViewModel.transferData(
                 userId,
                 recipient.text.toString(),
-                amount.text.toString()
+                amount.text.toString(),
+                balance.toString()
             )
-
-            setResult(RESULT_OK)
-            finish()
         }
         val updateTransferButton = {
             transferViewModel.onLoginFieldsChanged(
@@ -150,9 +150,17 @@ class TransferActivity : AppCompatActivity() {
 
         recipient.doAfterTextChanged { updateTransferButton() }
         amount.doAfterTextChanged { updateTransferButton() }
-
     }
+
     companion object {
         const val USER_ID = "userId"
+        const val BALANCE = "balance"
+
+        fun newIntent(context: Context, userId: String, balance: Double): Intent {
+            return Intent(context, TransferActivity::class.java).apply {
+                putExtra(USER_ID, userId)
+                putExtra(BALANCE, balance)
+            }
+        }
     }
 }

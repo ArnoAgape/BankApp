@@ -58,6 +58,7 @@ class HomeActivity : AppCompatActivity() {
         val retry = binding.tryAgain
         val transfer = binding.transfer
         val errorMessage = binding.errorMessage
+        val userId = intent.getStringExtra(USER_ID)
 
         defineRecyclerView()
         homeViewModel.getUserId(intent.getStringExtra(USER_ID).toString())
@@ -114,16 +115,18 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
+
         transfer.setOnClickListener {
+            val balance = mainUser?.balance ?: 0.0
             val userId = intent.getStringExtra(USER_ID) ?: return@setOnClickListener
-            val intent = Intent(this@HomeActivity, TransferActivity::class.java)
-            intent.putExtra(USER_ID, userId)
+            val intent = TransferActivity.newIntent(this, userId, balance)
             startTransferActivityForResult.launch(intent)
         }
     }
 
+    private var mainUser: UserModel? = null
     private fun updateCurrentBalance(userDetails: List<UserModel>) {
-        Log.d("HomeActivity", "Taille de la liste : ${userDetails.size}")
+        mainUser = userDetails.find { it.main }
         customAdapter.submitList(userDetails)
     }
 
@@ -159,13 +162,16 @@ class HomeActivity : AppCompatActivity() {
     }
 
     companion object {
-        fun startActivity(context: Context, userId: String) {
-            val intent = Intent(context, HomeActivity::class.java)
-            intent.putExtra(USER_ID, userId)
+        fun startActivity(context: Context, userId: String, balance: Double) {
+            val intent = Intent(context, HomeActivity::class.java).apply {
+                putExtra(USER_ID, userId)
+                putExtra(BALANCE, balance)
+            }
             context.startActivity(intent)
         }
 
-        internal const val USER_ID = "userId"
+        const val USER_ID = "userId"
+        const val BALANCE = "balance"
     }
 
 }

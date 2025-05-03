@@ -28,4 +28,5 @@
   <string name="error_server">Le serveur est inaccessible, réessayez plus tard</string>
   <string name="try_again">Une erreur est survenue, appuyez sur le bouton pour relancer la page</string>
   <string name="unknown_error">Erreur inconnue</string>
+
 </resources>

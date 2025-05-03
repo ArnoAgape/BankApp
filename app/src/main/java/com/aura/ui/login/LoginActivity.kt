@@ -17,6 +17,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.aura.R
 import com.aura.databinding.ActivityLoginBinding
 import com.aura.ui.home.HomeActivity
+import com.aura.ui.home.HomeActivity.Companion.BALANCE
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -68,7 +69,8 @@ class LoginActivity : AppCompatActivity() {
                                     Toast.LENGTH_SHORT
                                 ).show()
                                 val userId = identifier.text.toString()
-                                HomeActivity.startActivity(this@LoginActivity, userId)
+                                val balance = intent.getDoubleExtra(BALANCE, 0.0)
+                                HomeActivity.startActivity(this@LoginActivity, userId, balance)
                                 finish()
                             }
 

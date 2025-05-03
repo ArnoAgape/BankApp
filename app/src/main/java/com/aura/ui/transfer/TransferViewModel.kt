@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.aura.ui.data.network.repository.AuraRepository
 import com.aura.ui.di.errors.NoConnectionException
 import com.aura.ui.di.errors.ServerUnavailableException
+import com.aura.ui.di.errors.UnknownUserException
 import com.aura.ui.login.State
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,12 +33,19 @@ class TransferViewModel @Inject constructor(private val dataRepository: AuraRepo
         }
     }
 
-    fun transferData(sender: String, recipient: String, amount: String) {
+    fun ifSameId(sender: String, recipient: String) {
+        _uiState.update {
+            it.copy(
+                sameUserId = sender.toString() !== recipient.toString()
+            )
+        }
+    }
+
+    fun transferData(sender: String, recipient: String, amount: String, senderBalance: String) {
         _uiState.update {
             it.copy(result = State.Loading)
         }
-        Log.d("fetchTransferData", "Envoyé: sender=$sender, recipient=$recipient, amount=$amount")
-
+        Log.d("fetchTransferData", "Envoyé: sender=$sender, recipient=$recipient, amount=$amount, balance=$senderBalance")
         dataRepository.fetchTransferData(sender, recipient, amount.toDouble())
             .onEach { result ->
                 _uiState.update {
@@ -45,13 +53,21 @@ class TransferViewModel @Inject constructor(private val dataRepository: AuraRepo
                         result = if (result) State.Success else State.Error.InsufficientBalance
                     )
                 }
-            }
-            .catch { error ->
-                if (error is NoConnectionException) {
-                    _uiState.update { it.copy(result = State.Error.NoInternet) }
-                }
-                if (error is ServerUnavailableException) {
-                    _uiState.update { it.copy(result = State.Error.Server) }
+            }.catch { error ->
+                when (error) {
+                    is NoConnectionException -> {
+                        _uiState.update { it.copy(result = State.Error.NoInternet) }
+                    }
+                    is UnknownUserException -> {
+                        _uiState.update { it.copy(result = State.Error.UnknownId) }
+                    }
+                    is ServerUnavailableException -> {
+                        _uiState.update { it.copy(result = State.Error.Server) }
+                    }
+                    else -> {
+                        _uiState.update { it.copy(result = State.Error.UnknownError) } // facultatif
+                        Log.e("TransferViewModel", "Erreur inconnue : ${error.message}")
+                    }
                 }
             }
             .launchIn(viewModelScope)
@@ -60,5 +76,6 @@ class TransferViewModel @Inject constructor(private val dataRepository: AuraRepo
 
 data class TransferUIState(
     val result: State = State.Idle,
-    val isTransferEnabled: Boolean = false
+    val isTransferEnabled: Boolean = false,
+    val sameUserId: Boolean = false
 )

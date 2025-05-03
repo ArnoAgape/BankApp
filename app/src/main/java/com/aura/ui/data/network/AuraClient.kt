@@ -3,8 +3,9 @@ package com.aura.ui.data.network
 import com.aura.ui.domain.model.LoginModel
 import com.aura.ui.home.Account
 import com.aura.ui.login.LoginResponse
-import com.aura.ui.transfer.TransferModel
+import com.aura.ui.domain.model.TransferModel
 import com.aura.ui.transfer.TransferResponse
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -20,5 +21,6 @@ interface AuraClient {
     ): List<Account>
 
     @POST("/transfer")
-    suspend fun transferDetails(@Body request: TransferModel): TransferResponse
+    suspend fun transferDetails(
+        @Body request: TransferModel): Response<TransferResponse>
 }

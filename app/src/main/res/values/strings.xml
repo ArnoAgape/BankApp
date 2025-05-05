@@ -23,6 +23,7 @@
   <string name="transfer_success">Virement réussi</string>
   <string name="transfer_failed">Solde insuffisant</string>
   <string name="id_recipient_fail">Destinataire inconnu</string>
+  <string name="same_user_id">Vous ne pouvez pas vous faire un virement à vous-même</string>
 
   <string name="no_internet">Vérifiez votre connexion Internet</string>
   <string name="error_server">Le serveur est inaccessible, réessayez plus tard</string>

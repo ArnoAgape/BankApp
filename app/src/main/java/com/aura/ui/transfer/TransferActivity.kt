@@ -66,7 +66,6 @@ class TransferActivity : AppCompatActivity() {
                 // Écoute l'état de connexion
                 launch {
                     transferViewModel.uiState.collect { state ->
-                        Log.d("TransferActivity", "État actuel = ${state.result}")
                         when (state.result) {
                             State.Success -> {
                                 Toast.makeText(
@@ -76,7 +75,11 @@ class TransferActivity : AppCompatActivity() {
                                 ).show()
                                 val userId = intent.getStringExtra(USER_ID) ?: ""
                                 val balance = intent.getDoubleExtra(BALANCE, 0.0)
-                                HomeActivity.startActivity(this@TransferActivity, userId, balance)
+                                HomeActivity.startActivity(
+                                    this@TransferActivity,
+                                    userId,
+                                    balance
+                                )
                                 setResult(RESULT_OK)
                                 finish()
                             }
@@ -95,6 +98,15 @@ class TransferActivity : AppCompatActivity() {
                                 Toast.makeText(
                                     this@TransferActivity,
                                     getString(R.string.id_recipient_fail),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            State.Error.SameUserId -> {
+                                loading.visibility = View.GONE
+                                Toast.makeText(
+                                    this@TransferActivity,
+                                    getString(R.string.same_user_id),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }

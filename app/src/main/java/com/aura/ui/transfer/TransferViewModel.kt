@@ -33,19 +33,21 @@ class TransferViewModel @Inject constructor(private val dataRepository: AuraRepo
         }
     }
 
-    fun ifSameId(sender: String, recipient: String) {
-        _uiState.update {
-            it.copy(
-                sameUserId = sender.toString() !== recipient.toString()
-            )
-        }
-    }
-
     fun transferData(sender: String, recipient: String, amount: String, senderBalance: String) {
+        // Cas : même identifiant
+        if (sender == recipient) {
+            _uiState.update {
+                it.copy(result = State.Error.SameUserId)
+            }
+            return
+        }
         _uiState.update {
             it.copy(result = State.Loading)
         }
-        Log.d("fetchTransferData", "Envoyé: sender=$sender, recipient=$recipient, amount=$amount, balance=$senderBalance")
+        Log.d(
+            "fetchTransferData",
+            "Envoyé: sender=$sender, recipient=$recipient, amount=$amount, balance=$senderBalance"
+        )
         dataRepository.fetchTransferData(sender, recipient, amount.toDouble())
             .onEach { result ->
                 _uiState.update {
@@ -58,12 +60,15 @@ class TransferViewModel @Inject constructor(private val dataRepository: AuraRepo
                     is NoConnectionException -> {
                         _uiState.update { it.copy(result = State.Error.NoInternet) }
                     }
+
                     is UnknownUserException -> {
                         _uiState.update { it.copy(result = State.Error.UnknownId) }
                     }
+
                     is ServerUnavailableException -> {
                         _uiState.update { it.copy(result = State.Error.Server) }
                     }
+
                     else -> {
                         _uiState.update { it.copy(result = State.Error.UnknownError) } // facultatif
                         Log.e("TransferViewModel", "Erreur inconnue : ${error.message}")

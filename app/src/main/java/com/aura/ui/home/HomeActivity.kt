@@ -58,7 +58,6 @@ class HomeActivity : AppCompatActivity() {
         val retry = binding.tryAgain
         val transfer = binding.transfer
         val errorMessage = binding.errorMessage
-        val userId = intent.getStringExtra(USER_ID)
 
         defineRecyclerView()
         homeViewModel.getUserId(intent.getStringExtra(USER_ID).toString())
@@ -127,7 +126,8 @@ class HomeActivity : AppCompatActivity() {
     private var mainUser: UserModel? = null
     private fun updateCurrentBalance(userDetails: List<UserModel>) {
         mainUser = userDetails.find { it.main }
-        customAdapter.submitList(userDetails)
+        val mainAccounts = userDetails.filter { it.main }
+        customAdapter.submitList(mainAccounts)
     }
 
     private fun defineRecyclerView() {

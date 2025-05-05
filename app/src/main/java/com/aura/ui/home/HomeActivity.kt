@@ -3,7 +3,6 @@ package com.aura.ui.home
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -18,9 +17,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aura.R
 import com.aura.databinding.ActivityHomeBinding
+import com.aura.ui.adapter.BalanceAdapter
 import com.aura.ui.domain.model.UserModel
 import com.aura.ui.login.LoginActivity
-import com.aura.ui.login.State
+import com.aura.ui.states.State
 import com.aura.ui.transfer.TransferActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch

@@ -1,10 +1,8 @@
 package com.aura.ui.login
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -18,6 +16,7 @@ import com.aura.R
 import com.aura.databinding.ActivityLoginBinding
 import com.aura.ui.home.HomeActivity
 import com.aura.ui.home.HomeActivity.Companion.BALANCE
+import com.aura.ui.states.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 

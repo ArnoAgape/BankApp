@@ -3,7 +3,6 @@ package com.aura.ui.transfer
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -16,10 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.aura.R
 import com.aura.databinding.ActivityTransferBinding
 import com.aura.ui.home.HomeActivity
-import com.aura.ui.home.HomeActivity.Companion.BALANCE
-import com.aura.ui.home.HomeActivity.Companion.USER_ID
-import com.aura.ui.login.LoginActivity
-import com.aura.ui.login.State
+import com.aura.ui.states.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlin.getValue

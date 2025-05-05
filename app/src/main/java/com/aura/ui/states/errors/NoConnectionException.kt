@@ -1,4 +1,4 @@
-package com.aura.ui.di.errors
+package com.aura.ui.states.errors
 
 import java.io.IOException
 

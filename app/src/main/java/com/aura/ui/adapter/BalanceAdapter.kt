@@ -1,4 +1,4 @@
-package com.aura.ui.home
+package com.aura.ui.adapter
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater

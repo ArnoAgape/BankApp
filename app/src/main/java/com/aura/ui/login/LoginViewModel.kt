@@ -3,8 +3,9 @@ package com.aura.ui.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aura.ui.data.network.repository.AuraRepository
-import com.aura.ui.di.errors.NoConnectionException
-import com.aura.ui.di.errors.ServerUnavailableException
+import com.aura.ui.states.errors.NoConnectionException
+import com.aura.ui.states.errors.ServerUnavailableException
+import com.aura.ui.states.State
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,23 +34,23 @@ class LoginViewModel @Inject constructor(private val dataRepository: AuraReposit
         _uiState.update {
             it.copy(result = State.Loading)
         }
-            dataRepository.fetchLoginData(id, password)
-                .onEach { isGranted ->
-                    _uiState.update {
-                        it.copy(
-                            result = if (isGranted) State.Success else State.Error.LoginError
-                        )
-                    }
+        dataRepository.fetchLoginData(id, password)
+            .onEach { isGranted ->
+                _uiState.update {
+                    it.copy(
+                        result = if (isGranted) State.Success else State.Error.LoginError
+                    )
                 }
-                .catch { error ->
-                    if (error is NoConnectionException) {
-                        _uiState.update { it.copy(result = State.Error.NoInternet) }
-                    }
-                    if (error is ServerUnavailableException) {
-                        _uiState.update { it.copy(result = State.Error.Server) }
-                    }
+            }
+            .catch { error ->
+                if (error is NoConnectionException) {
+                    _uiState.update { it.copy(result = State.Error.NoInternet) }
                 }
-                .launchIn(viewModelScope)
+                if (error is ServerUnavailableException) {
+                    _uiState.update { it.copy(result = State.Error.Server) }
+                }
+            }
+            .launchIn(viewModelScope)
     }
 }
 

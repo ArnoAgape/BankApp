@@ -1,7 +1,7 @@
 package com.aura.ui.data.network
 
 import com.aura.ui.domain.model.LoginModel
-import com.aura.ui.home.Account
+import com.aura.ui.home.HomeResponse
 import com.aura.ui.login.LoginResponse
 import com.aura.ui.domain.model.TransferModel
 import com.aura.ui.transfer.TransferResponse
@@ -18,7 +18,7 @@ interface AuraClient {
     @GET("/accounts/{id}")
     suspend fun userId(
         @Query(value = "id") id: String
-    ): List<Account>
+    ): List<HomeResponse>
 
     @POST("/transfer")
     suspend fun transferDetails(

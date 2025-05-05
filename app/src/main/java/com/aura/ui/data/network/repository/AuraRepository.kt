@@ -3,12 +3,12 @@ package com.aura.ui.data.network.repository
 import android.content.Context
 import android.util.Log
 import com.aura.ui.data.network.AuraClient
-import com.aura.ui.di.errors.NetworkStatusChecker
+import com.aura.ui.states.errors.NetworkStatusChecker
 import com.aura.ui.domain.model.LoginModel
 import com.aura.ui.domain.model.UserModel
-import com.aura.ui.di.errors.NoConnectionException
-import com.aura.ui.di.errors.ServerUnavailableException
-import com.aura.ui.di.errors.UnknownUserException
+import com.aura.ui.states.errors.NoConnectionException
+import com.aura.ui.states.errors.ServerUnavailableException
+import com.aura.ui.states.errors.UnknownUserException
 import com.aura.ui.domain.model.TransferModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow

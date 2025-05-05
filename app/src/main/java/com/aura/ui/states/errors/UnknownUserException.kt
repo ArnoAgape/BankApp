@@ -1,5 +1,4 @@
-package com.aura.ui.di.errors
+package com.aura.ui.states.errors
 
-import java.io.IOException
 
 class UnknownUserException : Exception("L'utilisateur n'existe pas")

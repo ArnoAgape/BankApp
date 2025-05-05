@@ -1,4 +1,4 @@
-package com.aura.ui.login
+package com.aura.ui.states
 
 sealed class State {
     object Idle : State()            // Pas encore tenté

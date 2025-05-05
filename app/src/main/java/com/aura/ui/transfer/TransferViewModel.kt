@@ -71,8 +71,7 @@ class TransferViewModel @Inject constructor(private val dataRepository: AuraRepo
                     }
 
                     else -> {
-                        _uiState.update { it.copy(result = State.Error.UnknownError) } // facultatif
-                        Log.e("TransferViewModel", "Erreur inconnue : ${error.message}")
+                        _uiState.update { it.copy(result = State.Error.UnknownError) }
                     }
                 }
             }

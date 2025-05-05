@@ -1,5 +1,6 @@
 package com.aura.tests
 
+import app.cash.turbine.test
 import app.cash.turbine.turbineScope
 import com.aura.repository.FakeAuraRepository
 import com.aura.ui.home.HomeViewModel
@@ -31,8 +32,9 @@ class HomeViewModelTest {
     @Test
     fun getUserId() = runTest {
 
-        turbineScope {
-            val turbine = viewModel.uiState.testIn(backgroundScope)
-        }
+            viewModel.uiState.test {
+                awaitItem()
+            }
+
     }
 }

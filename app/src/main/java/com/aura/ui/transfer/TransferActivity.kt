@@ -69,13 +69,6 @@ class TransferActivity : AppCompatActivity() {
                                     getString(R.string.transfer_success),
                                     Toast.LENGTH_SHORT
                                 ).show()
-                                val userId = intent.getStringExtra(USER_ID) ?: ""
-                                val balance = intent.getDoubleExtra(BALANCE, 0.0)
-                                HomeActivity.startActivity(
-                                    this@TransferActivity,
-                                    userId,
-                                    balance
-                                )
                                 setResult(RESULT_OK)
                                 finish()
                             }
@@ -117,12 +110,7 @@ class TransferActivity : AppCompatActivity() {
                             }
 
                             State.Error.NoInternet -> {
-                                loading.visibility = View.GONE
-                                Toast.makeText(
-                                    this@TransferActivity,
-                                    getString(R.string.no_internet),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                handleError(getString(R.string.no_internet))
                             }
 
                             State.Loading -> loading.visibility = View.VISIBLE
@@ -170,5 +158,14 @@ class TransferActivity : AppCompatActivity() {
                 putExtra(BALANCE, balance)
             }
         }
+    }
+
+    fun handleError(message: String) {
+        binding.loading.visibility = View.GONE
+        Toast.makeText(
+            this@TransferActivity,
+            message,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

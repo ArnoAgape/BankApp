@@ -45,7 +45,7 @@ class HomeActivity : AppCompatActivity() {
      */
     private val startTransferActivityForResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-            //TODO
+            homeViewModel.getUserId(intent.getStringExtra(USER_ID).toString())
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {

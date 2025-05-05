@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aura.ui.data.network.repository.AuraRepository
+import com.aura.ui.data.network.repository.AuraRepositoryInterface
 import com.aura.ui.states.errors.NoConnectionException
 import com.aura.ui.states.errors.ServerUnavailableException
 import com.aura.ui.states.errors.UnknownUserException
@@ -19,7 +20,7 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
-class TransferViewModel @Inject constructor(private val dataRepository: AuraRepository) :
+class TransferViewModel @Inject constructor(private val dataRepository: AuraRepositoryInterface) :
     ViewModel() {
 
     private val _uiState = MutableStateFlow(TransferUIState(State.Idle))

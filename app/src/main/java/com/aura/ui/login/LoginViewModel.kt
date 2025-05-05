@@ -3,6 +3,7 @@ package com.aura.ui.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aura.ui.data.network.repository.AuraRepository
+import com.aura.ui.data.network.repository.AuraRepositoryInterface
 import com.aura.ui.states.errors.NoConnectionException
 import com.aura.ui.states.errors.ServerUnavailableException
 import com.aura.ui.states.State
@@ -17,7 +18,7 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val dataRepository: AuraRepository) : ViewModel() {
+class LoginViewModel @Inject constructor(private val dataRepository: AuraRepositoryInterface) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUIState(State.Idle))
     val uiState: StateFlow<LoginUIState> = _uiState.asStateFlow()

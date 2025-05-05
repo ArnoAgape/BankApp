@@ -19,11 +19,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AuraRepository @Inject constructor(@ApplicationContext context: Context, private val dataService: AuraClient) {
+class AuraRepository @Inject constructor(@ApplicationContext context: Context, private val dataService: AuraClient) : AuraRepositoryInterface {
 
     private val networkChecker = NetworkStatusChecker(context)
 
-    fun fetchLoginData(id: String, password: String): Flow<Boolean> = flow {
+    override fun fetchLoginData(id: String, password: String): Flow<Boolean> = flow {
         val request = dataService.loginDetails(LoginModel(id, password))
         Log.d("fetchLoginData", "Envoyé: id=$id, password=$password")
         emit(request.granted)
@@ -41,7 +41,7 @@ class AuraRepository @Inject constructor(@ApplicationContext context: Context, p
         }
     }
 
-    fun fetchUserData(id: String): Flow<List<UserModel>> = flow {
+    override fun fetchUserData(id: String): Flow<List<UserModel>> = flow {
         val accounts = dataService.userId(id)
         Log.d("fetchUserData", "Reçu: id=$id")
         val model = accounts.map { account ->
@@ -66,7 +66,7 @@ class AuraRepository @Inject constructor(@ApplicationContext context: Context, p
         }
     }
 
-    fun fetchTransferData(sender: String, recipient: String, amount: Double): Flow<Boolean> = flow {
+    override fun fetchTransferData(sender: String, recipient: String, amount: Double): Flow<Boolean> = flow {
         Log.d("fetchTransferDataRepository", "Envoyé: sender=$sender, recipient=$recipient, amount=$amount")
 
         val response = dataService.transferDetails(TransferModel(sender, recipient, amount))

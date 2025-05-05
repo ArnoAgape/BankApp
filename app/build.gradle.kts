@@ -61,9 +61,14 @@ dependencies {
   implementation("androidx.activity:activity-ktx:1.10.1")
   kapt("com.google.dagger:hilt-compiler:2.50")
   // Serializable
-  implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
+  implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
   testImplementation("junit:junit:4.13.2")
   testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+  testImplementation("app.cash.turbine:turbine:1.2.0")
+  testImplementation ("org.mockito:mockito-core:5.2.0")
+  testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
   androidTestImplementation("androidx.test.ext:junit:1.2.1")
   androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+  testImplementation(kotlin("test"))
 }

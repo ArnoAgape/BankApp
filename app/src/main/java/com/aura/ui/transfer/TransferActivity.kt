@@ -74,7 +74,7 @@ class TransferActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.eventsFlow.collect { event ->
                     when (event) {
-                        is LoginEvent.ShowToast -> {
+                        is TransferEvent.ShowToast -> {
                             showToast(getString(event.message))
                         }
                     }

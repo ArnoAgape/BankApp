@@ -28,11 +28,11 @@ class TransferViewModel @Inject constructor(private val dataRepository: AuraRepo
     private val _uiState = MutableStateFlow(TransferUIState(State.Idle))
     val uiState: StateFlow<TransferUIState> = _uiState.asStateFlow()
 
-    private val _eventsFlow = Channel<LoginEvent>()
+    private val _eventsFlow = Channel<TransferEvent>()
     val eventsFlow = _eventsFlow.receiveAsFlow()
 
     private fun sendToast(@androidx.annotation.StringRes msg: Int) {
-        _eventsFlow.trySend(LoginEvent.ShowToast(msg))
+        _eventsFlow.trySend(TransferEvent.ShowToast(msg))
     }
 
     fun onLoginFieldsChanged(recipient: String, amount: String) {
@@ -54,7 +54,7 @@ class TransferViewModel @Inject constructor(private val dataRepository: AuraRepo
 
             .onEach { result ->
                 _eventsFlow.trySend(
-                    LoginEvent.ShowToast(
+                    TransferEvent.ShowToast(
                         if (result) R.string.transfer_success else R.string.transfer_failed
                     )
                 )

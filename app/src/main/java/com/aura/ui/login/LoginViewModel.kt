@@ -1,19 +1,23 @@
 package com.aura.ui.login
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aura.ui.data.network.repository.AuraRepository
+import com.aura.R
 import com.aura.ui.data.network.repository.AuraRepositoryInterface
 import com.aura.ui.states.errors.NoConnectionException
 import com.aura.ui.states.errors.ServerUnavailableException
 import com.aura.ui.states.State
+import com.aura.ui.transfer.LoginEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
@@ -23,20 +27,28 @@ class LoginViewModel @Inject constructor(private val dataRepository: AuraReposit
     private val _uiState = MutableStateFlow(LoginUIState(State.Idle))
     val uiState: StateFlow<LoginUIState> = _uiState.asStateFlow()
 
+    private val _eventsFlow = Channel<LoginEvent>()
+    val eventsFlow = _eventsFlow.receiveAsFlow()
+
+    private fun sendToast(@StringRes msg: Int) {
+        _eventsFlow.trySend(LoginEvent.ShowToast(msg))
+    }
+
     fun onLoginFieldsChanged(id: String, password: String) {
-        _uiState.update {
-            it.copy(
-                isLoginEnabled = id.isNotBlank() && password.isNotBlank()
-            )
-        }
+        _uiState.update { it.copy(isLoginEnabled = id.isNotBlank() && password.isNotBlank()) }
     }
 
     fun loginData(id: String, password: String) {
-        _uiState.update {
-            it.copy(result = State.Loading)
-        }
+        _uiState.update { it.copy(result = State.Loading) }
+
         dataRepository.fetchLoginData(id, password)
+
             .onEach { isGranted ->
+                _eventsFlow.trySend(
+                    LoginEvent.ShowToast(
+                        if (isGranted) R.string.login_success else R.string.login_fail
+                    )
+                )
                 _uiState.update {
                     it.copy(
                         result = if (isGranted) State.Success else State.Error.LoginError
@@ -44,12 +56,14 @@ class LoginViewModel @Inject constructor(private val dataRepository: AuraReposit
                 }
             }
             .catch { error ->
-                if (error is NoConnectionException) {
-                    _uiState.update { it.copy(result = State.Error.NoInternet) }
+                val message = when (error) {
+                    is NoConnectionException -> R.string.no_internet
+                    is ServerUnavailableException -> R.string.error_server
+                    else -> R.string.unknown_error
                 }
-                if (error is ServerUnavailableException) {
-                    _uiState.update { it.copy(result = State.Error.Server) }
-                }
+
+                _uiState.update { it.copy(result = State.Idle) }
+                sendToast(message)
             }
             .launchIn(viewModelScope)
     }

@@ -71,6 +71,7 @@
     app:layout_constraintStart_toStartOf="@+id/amount"
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintVertical_bias="0.3"
+    tools:visibility="visible"
     />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

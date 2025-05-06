@@ -15,8 +15,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.aura.R
 import com.aura.databinding.ActivityLoginBinding
 import com.aura.ui.home.HomeActivity
-import com.aura.ui.home.HomeActivity.Companion.BALANCE
 import com.aura.ui.states.State
+import com.aura.ui.transfer.TransferActivity.Companion.BALANCE
+import com.aura.ui.transfer.LoginEvent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -27,7 +28,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 
-    private val loginViewModel: LoginViewModel by viewModels()
+    private val viewModel: LoginViewModel by viewModels()
 
     /**
      * The binding for the login layout.
@@ -41,93 +42,75 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val login = binding.login
-        val loading = binding.loading
-        val password = binding.password
-        val identifier = binding.identifier
+        binding.login.isEnabled = false
 
-        login.isEnabled = false
+        setupTextWatchers()
+        setupUiStateObserver()
+        setupEventsObserver()
+        setupLoginButton()
+    }
 
+    private fun setupLoginButton() {
+        binding.login.setOnClickListener {
+            hideKeyboard()
+            viewModel.loginData(
+                binding.identifier.text.toString(),
+                binding.password.text.toString()
+            )
+        }
+    }
+
+    private fun hideKeyboard() {
+        currentFocus?.let {
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(it.windowToken, 0)
+        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun setupTextWatchers() {
+        val update = {
+            viewModel.onLoginFieldsChanged(
+                binding.identifier.text.toString(),
+                binding.password.text.toString()
+            )
+        }
+        binding.identifier.doAfterTextChanged { update() }
+        binding.password.doAfterTextChanged { update() }
+    }
+
+    private fun setupUiStateObserver() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Réactive le bouton selon les champs
-                launch {
-                    loginViewModel.uiState.collect { state ->
-                        login.isEnabled = state.isLoginEnabled
-                    }
-                }
+                viewModel.uiState.collect { state ->
+                    binding.login.isEnabled = state.isLoginEnabled
+                    binding.loading.visibility = if (state.result == State.Loading) View.VISIBLE else View.GONE
 
-                // Écoute l'état de connexion
-                launch {
-                    loginViewModel.uiState.collect { state ->
-                        when (state.result) {
-                            State.Success -> {
-                                Toast.makeText(
-                                    this@LoginActivity,
-                                    getString(R.string.login_success),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                val userId = identifier.text.toString()
-                                val balance = intent.getDoubleExtra(BALANCE, 0.0)
-                                HomeActivity.startActivity(this@LoginActivity, userId, balance)
-                                finish()
-                            }
-
-                            State.Error.LoginError -> {
-                                loading.visibility = View.GONE
-                                Toast.makeText(
-                                    this@LoginActivity,
-                                    getString(R.string.login_fail),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-
-                            State.Error.Server -> {
-                                loading.visibility = View.GONE
-                                Toast.makeText(
-                                    this@LoginActivity,
-                                    getString(R.string.error_server),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-
-                            State.Error.NoInternet -> {
-                                loading.visibility = View.GONE
-                                Toast.makeText(
-                                    this@LoginActivity,
-                                    getString(R.string.no_internet),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-
-                            State.Loading -> loading.visibility = View.VISIBLE
-
-                            else -> {
-                                loading.visibility = View.GONE
-                            }
-                        }
+                    if (state.result == State.Success) {
+                        val userId = binding.identifier.text.toString()
+                        val balance = intent.getDoubleExtra(BALANCE, 0.0)
+                        HomeActivity.startActivity(this@LoginActivity, userId, balance)
+                        finish()
                     }
                 }
             }
         }
+    }
 
-        val updateLoginButton = {
-            loginViewModel.onLoginFieldsChanged(
-                identifier.text.toString(),
-                password.text.toString()
-            )
-        }
-
-        identifier.doAfterTextChanged { updateLoginButton() }
-        password.doAfterTextChanged { updateLoginButton() }
-
-        login.setOnClickListener {
-            // cache le clavier
-            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
-
-            // appel de la fonction de connexion
-            loginViewModel.loginData(identifier.text.toString(), password.text.toString())
+    private fun setupEventsObserver() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.eventsFlow.collect { event ->
+                    when (event) {
+                        is LoginEvent.ShowToast -> {
+                            showToast(getString(event.message))
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -135,5 +118,4 @@ class LoginActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.login_menu, menu)
         return true
     }
-
 }

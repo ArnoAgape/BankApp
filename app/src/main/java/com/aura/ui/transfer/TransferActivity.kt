@@ -12,9 +12,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.aura.R
 import com.aura.databinding.ActivityTransferBinding
-import com.aura.ui.home.HomeActivity
 import com.aura.ui.states.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -27,125 +25,85 @@ import kotlin.getValue
 @AndroidEntryPoint
 class TransferActivity : AppCompatActivity() {
 
-    private val transferViewModel: TransferViewModel by viewModels()
-
-    /**
-     * The binding for the transfer layout.
-     */
+    private val viewModel: TransferViewModel by viewModels()
     private lateinit var binding: ActivityTransferBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityTransferBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        val recipient = binding.recipient
-        val amount = binding.amount
-        val transfer = binding.transfer
-        val loading = binding.loading
-
-        transfer.isEnabled = false
 
         val userId = intent.getStringExtra(USER_ID) ?: ""
         val balance = intent.getDoubleExtra(BALANCE, 0.0)
 
+        setupTextWatchers()
+        setupUiStateObserver()
+        setupEventsObserver()
+        setupTransferButton(userId, balance)
+    }
+
+    private fun setupTextWatchers() {
+        val update = {
+            viewModel.onLoginFieldsChanged(
+                binding.recipient.text.toString(),
+                binding.amount.text.toString()
+            )
+        }
+        binding.recipient.doAfterTextChanged { update() }
+        binding.amount.doAfterTextChanged { update() }
+    }
+
+    private fun setupUiStateObserver() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Réactive le bouton selon les champs
-                launch {
-                    transferViewModel.uiState.collect { state ->
-                        transfer.isEnabled = state.isTransferEnabled
+                viewModel.uiState.collect { state ->
+                    binding.transfer.isEnabled = state.isTransferEnabled
+                    binding.loading.visibility = if (state.result == State.Loading) View.VISIBLE else View.GONE
+
+                    if (state.result == State.Success) {
+                        setResult(RESULT_OK)
+                        finish()
                     }
                 }
+            }
+        }
+    }
 
-                // Écoute l'état de connexion
-                launch {
-                    transferViewModel.uiState.collect { state ->
-                        when (state.result) {
-                            State.Success -> {
-                                Toast.makeText(
-                                    this@TransferActivity,
-                                    getString(R.string.transfer_success),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                setResult(RESULT_OK)
-                                finish()
-                            }
-
-                            State.Error.InsufficientBalance -> {
-                                loading.visibility = View.GONE
-                                Toast.makeText(
-                                    this@TransferActivity,
-                                    getString(R.string.transfer_failed),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-
-                            State.Error.UnknownId -> {
-                                loading.visibility = View.GONE
-                                Toast.makeText(
-                                    this@TransferActivity,
-                                    getString(R.string.id_recipient_fail),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-
-                            State.Error.SameUserId -> {
-                                loading.visibility = View.GONE
-                                Toast.makeText(
-                                    this@TransferActivity,
-                                    getString(R.string.same_user_id),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-
-                            State.Error.Server -> {
-                                loading.visibility = View.GONE
-                                Toast.makeText(
-                                    this@TransferActivity,
-                                    getString(R.string.error_server),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-
-                            State.Error.NoInternet -> {
-                                handleError(getString(R.string.no_internet))
-                            }
-
-                            State.Loading -> loading.visibility = View.VISIBLE
-
-                            else -> {
-                                loading.visibility = View.GONE
-                            }
+    private fun setupEventsObserver() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.eventsFlow.collect { event ->
+                    when (event) {
+                        is LoginEvent.ShowToast -> {
+                            showToast(getString(event.message))
                         }
                     }
                 }
             }
         }
+    }
 
-        transfer.setOnClickListener {
-            // cache le clavier
-            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
-
-            // appel de la fonction de transfert
-            transferViewModel.transferData(
+    private fun setupTransferButton(userId: String, balance: Double) {
+        binding.transfer.setOnClickListener {
+            hideKeyboard()
+            viewModel.transferData(
                 userId,
-                recipient.text.toString(),
-                amount.text.toString(),
+                binding.recipient.text.toString(),
+                binding.amount.text.toString(),
                 balance.toString()
             )
         }
-        val updateTransferButton = {
-            transferViewModel.onLoginFieldsChanged(
-                recipient.text.toString(),
-                amount.text.toString()
-            )
-        }
+    }
 
-        recipient.doAfterTextChanged { updateTransferButton() }
-        amount.doAfterTextChanged { updateTransferButton() }
+    private fun hideKeyboard() {
+        currentFocus?.let {
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(it.windowToken, 0)
+        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     companion object {
@@ -158,14 +116,5 @@ class TransferActivity : AppCompatActivity() {
                 putExtra(BALANCE, balance)
             }
         }
-    }
-
-    fun handleError(message: String) {
-        binding.loading.visibility = View.GONE
-        Toast.makeText(
-            this@TransferActivity,
-            message,
-            Toast.LENGTH_SHORT
-        ).show()
     }
 }

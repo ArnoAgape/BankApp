@@ -14,10 +14,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.aura.R
 import com.aura.databinding.ActivityHomeBinding
-import com.aura.ui.adapter.BalanceAdapter
 import com.aura.ui.domain.model.UserModel
 import com.aura.ui.login.LoginActivity
 import com.aura.ui.states.State
@@ -28,7 +26,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
 
-    private val homeViewModel: HomeViewModel by viewModels()
+    private val viewModel: HomeViewModel by viewModels()
 
     /**
      * The binding for the home layout.
@@ -36,16 +34,11 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHomeBinding
 
     /**
-     * The adapter for the recycler view.
-     */
-    private val customAdapter = BalanceAdapter()
-
-    /**
      * A callback for the result of starting the TransferActivity.
      */
     private val startTransferActivityForResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-            homeViewModel.getUserId(intent.getStringExtra(USER_ID).toString())
+            viewModel.getUserId(intent.getStringExtra(USER_ID).toString())
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,68 +47,15 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val loading = binding.loading
-        val retry = binding.tryAgain
-        val transfer = binding.transfer
-        val errorMessage = binding.errorMessage
+        setupEventsObserver()
+        setupUiStateObserver()
+        setupRetryButton()
+        setupTransferButton()
+    }
 
-        defineRecyclerView()
-        homeViewModel.getUserId(intent.getStringExtra(USER_ID).toString())
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                homeViewModel.uiState.collect { state ->
-                    when (state.result) {
-                        State.Success -> {
-                            updateCurrentBalance(state.balance)
-                            loading.visibility = View.GONE
-                            retry.visibility = View.INVISIBLE
-                            errorMessage.visibility = View.INVISIBLE
-                        }
-
-                        State.Error.NoInternet -> {
-                            loading.visibility = View.GONE
-                            retry.visibility = View.VISIBLE
-                            errorMessage.visibility = View.VISIBLE
-                            Toast.makeText(
-                                this@HomeActivity,
-                                getString(R.string.no_internet),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-
-                        State.Error.Server -> {
-                            loading.visibility = View.GONE
-                            retry.visibility = View.VISIBLE
-                            errorMessage.visibility = View.VISIBLE
-                            Toast.makeText(
-                                this@HomeActivity,
-                                getString(R.string.error_server),
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                        }
-
-                        State.Loading -> loading.visibility = View.VISIBLE
-
-                        else -> {
-                            loading.visibility = View.GONE
-                        }
-                    }
-                }
-
-            }
-        }
-
-        retry.setOnClickListener {
-            val userId = intent.getStringExtra(USER_ID)
-            if (userId != null) {
-                homeViewModel.getUserId(userId)
-            }
-        }
-
-
-        transfer.setOnClickListener {
+    private fun setupTransferButton() {
+        var mainUser: UserModel? = null
+        binding.transfer.setOnClickListener {
             val balance = mainUser?.balance ?: 0.0
             val userId = intent.getStringExtra(USER_ID) ?: return@setOnClickListener
             val intent = TransferActivity.newIntent(this, userId, balance)
@@ -123,17 +63,66 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    private var mainUser: UserModel? = null
-    private fun updateCurrentBalance(userDetails: List<UserModel>) {
-        mainUser = userDetails.find { it.main }
-        val mainAccounts = userDetails.filter { it.main }
-        customAdapter.submitList(mainAccounts)
+    private fun setupRetryButton() {
+        binding.tryAgain.setOnClickListener {
+            val userId = intent.getStringExtra(USER_ID)
+            if (userId != null) {
+                viewModel.getUserId(userId)
+            }
+        }
     }
 
-    private fun defineRecyclerView() {
-        val layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.layoutManager = layoutManager
-        binding.recyclerView.adapter = customAdapter
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun setupUiStateObserver() {
+        viewModel.getUserId(intent.getStringExtra(USER_ID).toString())
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    binding.loading.visibility = if (state.result == State.Loading) View.VISIBLE else View.GONE
+                    binding.tryAgain.visibility = View.VISIBLE
+                    when (state.result) {
+                        State.Success -> {
+                            updateCurrentBalance(state.balance)
+                            binding.loading.visibility = View.GONE
+                            binding.tryAgain.visibility = View.INVISIBLE
+                        }
+
+                        State.Error.NoInternet -> showToast(R.string.no_internet.toString())
+                        State.Error.Server -> showToast(R.string.error_server.toString())
+                        State.Loading -> {
+                            binding.loading.visibility = View.VISIBLE
+                        }
+                        else -> {
+                            binding.loading.visibility = View.GONE
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setupEventsObserver() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.eventsFlow.collect { event ->
+                    when (event) {
+                        is HomeEvent.ShowToast -> {
+                            showToast(getString(event.message))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateCurrentBalance(userDetails: List<UserModel>) {
+        val mainAccount = userDetails.find { it.main }
+        val balance = mainAccount?.balance ?: 0.0
+        binding.balance.text
+        binding.amount.text = getString(R.string.balance_display, balance)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -152,7 +141,7 @@ class HomeActivity : AppCompatActivity() {
             R.id.reload -> {
                 val userId = intent.getStringExtra(USER_ID)
                 if (userId != null) {
-                    homeViewModel.getUserId(userId)
+                    viewModel.getUserId(userId)
                 }
                 true
             }

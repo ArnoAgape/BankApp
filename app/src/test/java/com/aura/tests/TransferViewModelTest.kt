@@ -5,19 +5,23 @@ import com.aura.repository.FakeAuraRepository
 import com.aura.ui.domain.model.LoginModel
 import com.aura.ui.domain.model.TransferModel
 import com.aura.ui.domain.model.UserModel
+import com.aura.ui.login.LoginViewModel
 import com.aura.ui.states.State
 import com.aura.ui.transfer.TransferViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertTrue
 
+@ExperimentalCoroutinesApi
 class TransferViewModelTest {
 
     private lateinit var viewModel: TransferViewModel
@@ -27,12 +31,16 @@ class TransferViewModelTest {
     val isTransferEnabled: Boolean = false
     val sameUserId: Boolean = false
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        val fakeRepository = FakeAuraRepository()
-        viewModel = TransferViewModel(fakeRepository)
+        val repository = FakeAuraRepository()
+        viewModel = TransferViewModel(repository)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
@@ -61,7 +69,8 @@ class TransferViewModelTest {
             val transfer1 = TransferModel(
                 LoginModel("id1", "password").toString(),
                 LoginModel("id2", "password").toString(),
-                100.0)
+                100.0
+            )
             fakeStateFlow.value = listOf(balanceUser1, balanceUser2) as State
 
             val actualBalance = turbine.awaitItem().result

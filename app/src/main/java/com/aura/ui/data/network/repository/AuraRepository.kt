@@ -11,6 +11,7 @@ import com.aura.ui.states.errors.ServerUnavailableException
 import com.aura.ui.states.errors.UnknownUserException
 import com.aura.ui.domain.model.TransferModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow

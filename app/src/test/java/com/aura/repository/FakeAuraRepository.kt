@@ -33,14 +33,21 @@ class FakeAuraRepository : AuraRepositoryInterface {
 
     override fun fetchUserData(id: String): Flow<List<UserModel>> = flow {
         if (shouldReturnError) throw ServerUnavailableException()
-        emit(
-            listOf(
+
+        val result = when (id) {
+            "1234" -> listOf(
                 UserModel("1", true, 523.23),
-                UserModel("2", false, 235.22),
-                UserModel("3", false, 24.53),
-                UserModel("4", true, 10032.21)
+                UserModel("2", false, 235.22)
             )
-        )
+
+            "5678" -> listOf(
+                UserModel("3", false, 1000.0)
+            )
+
+            else -> emptyList()
+        }
+
+        emit(result)
     }
 
     override fun fetchTransferData(sender: String, recipient: String, amount: Double): Flow<Boolean> =

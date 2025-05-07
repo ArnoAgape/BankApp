@@ -7,7 +7,7 @@ class AuraRepositoryTest {
 
     @Test
     fun fetchLoginData() {
-        Assert.assertEquals(4, 2 + 2)
+
     }
 
     @Test

@@ -8,7 +8,7 @@ import com.aura.ui.data.network.repository.AuraRepositoryInterface
 import com.aura.ui.states.errors.NoConnectionException
 import com.aura.ui.states.errors.ServerUnavailableException
 import com.aura.ui.states.State
-import com.aura.ui.transfer.TransferEvent
+import com.aura.ui.transfer.LoginEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,11 +27,11 @@ class LoginViewModel @Inject constructor(private val dataRepository: AuraReposit
     private val _uiState = MutableStateFlow(LoginUIState(State.Idle))
     val uiState: StateFlow<LoginUIState> = _uiState.asStateFlow()
 
-    private val _eventsFlow = Channel<TransferEvent>()
+    private val _eventsFlow = Channel<LoginEvent>()
     val eventsFlow = _eventsFlow.receiveAsFlow()
 
     private fun sendToast(@StringRes msg: Int) {
-        _eventsFlow.trySend(TransferEvent.ShowToast(msg))
+        _eventsFlow.trySend(LoginEvent.ShowToast(msg))
     }
 
     fun onLoginFieldsChanged(id: String, password: String) {
@@ -45,7 +45,7 @@ class LoginViewModel @Inject constructor(private val dataRepository: AuraReposit
 
             .onEach { isGranted ->
                 _eventsFlow.trySend(
-                    TransferEvent.ShowToast(
+                    LoginEvent.ShowToast(
                         if (isGranted) R.string.login_success else R.string.login_fail
                     )
                 )

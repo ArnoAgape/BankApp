@@ -17,7 +17,7 @@ import com.aura.databinding.ActivityLoginBinding
 import com.aura.ui.home.HomeActivity
 import com.aura.ui.states.State
 import com.aura.ui.transfer.TransferActivity.Companion.BALANCE
-import com.aura.ui.transfer.TransferEvent
+import com.aura.ui.transfer.LoginEvent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -105,7 +105,7 @@ class LoginActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.eventsFlow.collect { event ->
                     when (event) {
-                        is TransferEvent.ShowToast -> {
+                        is LoginEvent.ShowToast -> {
                             showToast(getString(event.message))
                         }
                     }

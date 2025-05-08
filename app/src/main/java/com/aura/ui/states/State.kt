@@ -1,16 +1,13 @@
 package com.aura.ui.states
 
 sealed class State {
-    object Idle : State()            // Pas encore tenté
-    object Success : State()         // Connexion réussie
-    object Loading : State()         // En cours
+    object Idle : State()            // Not tried yet
+    object Success : State()         // Successful connection
+    object Loading : State()         // Loading
     sealed class Error : State() {
-        object LoginError : Error()                 // Erreur identification
-        object UnknownId : Error()                  // Erreur d'id de destinataire
-        object SameUserId : Error()                 // Ne peut pas envoyer de l'argent à soi-même
-        object InsufficientBalance : Error()        // Solde insuffisant
-        object Server : Error()                     // Erreur serveur
-        object NoInternet : Error()                 // Pas de connexion Internet
-        object UnknownError : Error()               // Erreur inconnue
+        object LoginError : Error()                 // Login error (id or password)
+        object InsufficientBalance : Error()        // Insufficient balance
+        object Server : Error()                     // Server error
+        object NoInternet : Error()                 // No internet
     }
 }

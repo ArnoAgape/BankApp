@@ -22,7 +22,7 @@ object NetworkModule {
     @Provides
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://192.168.1.20:8080/") // pour émulateur utiliser : 10.0.2.2:8080
+            .baseUrl("http://192.168.1.15:8080/") // use this address on emulation : 10.0.2.2:8080
             .addConverterFactory(
                 MoshiConverterFactory.create(
                     Moshi.Builder().add(KotlinJsonAdapterFactory()).build()

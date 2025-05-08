@@ -1,4 +1,4 @@
 package com.aura.ui.states.errors
 
 
-class UnknownUserException : Exception("L'utilisateur n'existe pas")
+class UnknownUserException : Exception("The user doesn't exist")

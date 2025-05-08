@@ -1,17 +1,15 @@
 package com.aura.repository
 
-import com.aura.ui.domain.model.LoginModel
 import com.aura.ui.domain.model.UserModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.serialization.SerialName
 
 class FakeLocalApiService {
 
     private val users = listOf(
         User("1234", "Pierre", "Brisette", "p@sswOrd",
             listOf(
-                Account("1", true, 523.23),
+                Account("1", true, 2354.23),
                 Account("2", false, 235.22),
             )
         ),
@@ -41,6 +39,13 @@ class FakeLocalApiService {
         emit(userModels)
     }
 
+    fun transfer(sender: String, recipient: String, amount: Double): Flow<Boolean> = flow {
+        val senderUser = users.find { it.id == sender }
+        val recipientExists = users.any { it.id == recipient}
+        val mainAccountBalance = senderUser?.accounts?.find { it.main }!!.balance
+        val isValid = recipientExists && mainAccountBalance >= amount
+        emit(isValid)
+    }
 }
 
 data class User(
@@ -52,7 +57,7 @@ data class User(
 )
 
 data class Account(
-    @SerialName("id") val id: String,
-    @SerialName("main") val main: Boolean,
-    @SerialName("balance") var balance: Double
+    val id: String,
+    val main: Boolean,
+    var balance: Double
 )

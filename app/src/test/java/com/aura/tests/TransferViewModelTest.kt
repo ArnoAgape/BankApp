@@ -1,16 +1,12 @@
 package com.aura.tests
 
-import app.cash.turbine.turbineScope
+import app.cash.turbine.test
 import com.aura.repository.FakeAuraRepository
-import com.aura.ui.domain.model.LoginModel
-import com.aura.ui.domain.model.TransferModel
-import com.aura.ui.domain.model.UserModel
-import com.aura.ui.login.LoginViewModel
+import com.aura.repository.FakeLocalApiService
 import com.aura.ui.states.State
 import com.aura.ui.transfer.TransferViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -19,23 +15,20 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
 class TransferViewModelTest {
 
     private lateinit var viewModel: TransferViewModel
     private val testDispatcher = StandardTestDispatcher()
-    private val fakeStateFlow = MutableStateFlow<State>(State.Idle)
-
-    val isTransferEnabled: Boolean = false
-    val sameUserId: Boolean = false
+    private var api = FakeLocalApiService()
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        val repository = FakeAuraRepository()
+        val repository = FakeAuraRepository(api)
         viewModel = TransferViewModel(repository)
+        api = FakeLocalApiService()
     }
 
     @After
@@ -44,39 +37,22 @@ class TransferViewModelTest {
     }
 
     @Test
-    fun onLoginFieldsChanged() = runTest {
+    fun shouldEmitIdleThenLoadingThenSuccess() = runTest {
+        viewModel.uiState.test {
 
-        turbineScope {
-            val turbine = viewModel.uiState.testIn(backgroundScope)
+            val initial = awaitItem()
+            assertEquals(State.Idle, initial.result)
 
-            assertEquals(emptyList<UserModel>(), turbine.awaitItem().isTransferEnabled)
+            viewModel.transferData("5678", "1234", "100")
 
+            val loading = awaitItem()
+            assertEquals(State.Loading, loading.result)
+
+            val success = awaitItem()
+            assertEquals(State.Success, success.result)
+
+            cancelAndIgnoreRemainingEvents()
         }
-    }
 
-    @Test
-    fun transferData() = runTest {
-
-        turbineScope {
-            val turbine = viewModel.uiState.testIn(backgroundScope)
-
-            assertEquals(emptyList<UserModel>(), turbine.awaitItem().result)
-
-            val balanceUser1 = UserModel("1", true, 500.0)
-            val balanceUser2 = UserModel("2", true, 1000.0)
-            val user1 = LoginModel("id1", "")
-            val user2 = LoginModel("id2", "")
-            val transfer1 = TransferModel(
-                LoginModel("id1", "password").toString(),
-                LoginModel("id2", "password").toString(),
-                100.0
-            )
-            fakeStateFlow.value = listOf(balanceUser1, balanceUser2) as State
-
-            val actualBalance = turbine.awaitItem().result
-
-            turbine.cancelAndIgnoreRemainingEvents()
-
-        }
     }
 }

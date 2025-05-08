@@ -20,7 +20,7 @@
     android:layout_marginTop="96dp"
     android:autofillHints="@string/prompt_amount"
     android:hint="@string/prompt_recipient"
-    android:inputType="text"
+    android:inputType="numberDecimal"
     android:selectAllOnFocus="true"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"

@@ -8,7 +8,7 @@ import com.aura.ui.login.LoginResponse
 import com.aura.ui.transfer.TransferResponse
 import retrofit2.Response
 
-class FakeAuraClient : AuraClient {
+open class FakeAuraClient : AuraClient {
     override suspend fun userId(id: String): List<HomeResponse> {
         return if (id == "1234") {
             listOf(
@@ -25,6 +25,7 @@ class FakeAuraClient : AuraClient {
     }
 
     override suspend fun transferDetails(request: TransferModel): Response<TransferResponse> {
-        TODO("Not needed for this test")
+        return Response.success(TransferResponse(true))
     }
+
 }

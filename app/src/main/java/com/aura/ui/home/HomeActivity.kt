@@ -68,6 +68,7 @@ class HomeActivity : AppCompatActivity() {
             val userId = intent.getStringExtra(USER_ID)
             if (userId != null) {
                 viewModel.getUserId(userId)
+                binding.amount.visibility = View.VISIBLE
             }
         }
     }
@@ -81,7 +82,8 @@ class HomeActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
-                    binding.loading.visibility = if (state.result == State.Loading) View.VISIBLE else View.GONE
+                    binding.loading.visibility =
+                        if (state.result == State.Loading) View.VISIBLE else View.GONE
                     binding.tryAgain.visibility = View.VISIBLE
                     when (state.result) {
                         State.Success -> {
@@ -90,11 +92,16 @@ class HomeActivity : AppCompatActivity() {
                             binding.tryAgain.visibility = View.INVISIBLE
                         }
 
-                        State.Error.NoInternet -> showToast(R.string.no_internet.toString())
-                        State.Error.Server -> showToast(R.string.error_server.toString())
+                        State.Error.NoInternet ->
+                            showToast(R.string.no_internet.toString())
+
+                        State.Error.Server ->
+                            showToast(R.string.error_server.toString())
+
                         State.Loading -> {
                             binding.loading.visibility = View.VISIBLE
                         }
+
                         else -> {
                             binding.loading.visibility = View.GONE
                         }

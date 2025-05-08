@@ -16,7 +16,6 @@ import com.aura.databinding.ActivityTransferBinding
 import com.aura.ui.states.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import kotlin.getValue
 
 /**
  * The transfer activity for the app.
@@ -34,12 +33,11 @@ class TransferActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val userId = intent.getStringExtra(USER_ID) ?: ""
-        val balance = intent.getDoubleExtra(BALANCE, 0.0)
 
         setupTextWatchers()
         setupUiStateObserver()
         setupEventsObserver()
-        setupTransferButton(userId, balance)
+        setupTransferButton(userId)
     }
 
     private fun setupTextWatchers() {
@@ -74,7 +72,7 @@ class TransferActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.eventsFlow.collect { event ->
                     when (event) {
-                        is LoginEvent.ShowToast -> {
+                        is TransferEvent.ShowToast -> {
                             showToast(getString(event.message))
                         }
                     }
@@ -83,14 +81,13 @@ class TransferActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupTransferButton(userId: String, balance: Double) {
+    private fun setupTransferButton(userId: String) {
         binding.transfer.setOnClickListener {
             hideKeyboard()
             viewModel.transferData(
                 userId,
                 binding.recipient.text.toString(),
-                binding.amount.text.toString(),
-                balance.toString()
+                binding.amount.text.toString()
             )
         }
     }

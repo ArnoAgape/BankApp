@@ -5,10 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aura.R
 import com.aura.ui.data.network.repository.AuraRepositoryInterface
+import com.aura.ui.states.State
 import com.aura.ui.states.errors.NoConnectionException
 import com.aura.ui.states.errors.ServerUnavailableException
-import com.aura.ui.states.State
-import com.aura.ui.transfer.LoginEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

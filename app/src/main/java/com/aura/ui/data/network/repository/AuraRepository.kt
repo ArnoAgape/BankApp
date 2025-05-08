@@ -1,17 +1,15 @@
 package com.aura.ui.data.network.repository
 
 import android.content.Context
-import android.util.Log
 import com.aura.ui.data.network.AuraClient
-import com.aura.ui.states.errors.NetworkStatusChecker
 import com.aura.ui.domain.model.LoginModel
+import com.aura.ui.domain.model.TransferModel
 import com.aura.ui.domain.model.UserModel
+import com.aura.ui.states.errors.NetworkStatusChecker
 import com.aura.ui.states.errors.NoConnectionException
 import com.aura.ui.states.errors.ServerUnavailableException
 import com.aura.ui.states.errors.UnknownUserException
-import com.aura.ui.domain.model.TransferModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -26,25 +24,23 @@ class AuraRepository @Inject constructor(@ApplicationContext context: Context, p
 
     override fun fetchLoginData(id: String, password: String): Flow<Boolean> = flow {
         val request = dataService.loginDetails(LoginModel(id, password))
-        Log.d("fetchLoginData", "Envoyé: id=$id, password=$password")
         emit(request.granted)
     }.catch { error ->
         when (error) {
             is IOException -> {
                 if (!networkChecker.hasInternetConnection()) {
-                    throw NoConnectionException() // Pas d'internet
+                    throw NoConnectionException() // No Internet
                 } else {
-                    throw ServerUnavailableException() // Erreur serveur
+                    throw ServerUnavailableException() // Server error
                 }
             }
 
-            else -> throw error // Erreur inconnue
+            else -> throw error // Unknown error
         }
     }
 
     override fun fetchUserData(id: String): Flow<List<UserModel>> = flow {
         val accounts = dataService.userId(id)
-        Log.d("fetchUserData", "Reçu: id=$id")
         val model = accounts.map { account ->
             UserModel(
                 id = account.id,
@@ -57,18 +53,17 @@ class AuraRepository @Inject constructor(@ApplicationContext context: Context, p
         when (error) {
             is IOException -> {
                 if (!networkChecker.hasInternetConnection()) {
-                throw NoConnectionException() // Pas d'internet
+                throw NoConnectionException() // No Internet
             } else {
                 throw ServerUnavailableException()
                 }
             }
 
-            else -> throw error // Erreur inconnue
+            else -> throw error // Unknown error
         }
     }
 
     override fun fetchTransferData(sender: String, recipient: String, amount: Double): Flow<Boolean> = flow {
-        Log.d("fetchTransferDataRepository", "Envoyé: sender=$sender, recipient=$recipient, amount=$amount")
 
         val response = dataService.transferDetails(TransferModel(sender, recipient, amount))
 
@@ -86,7 +81,6 @@ class AuraRepository @Inject constructor(@ApplicationContext context: Context, p
         }
 
     }.catch { error ->
-        Log.e("AuraRepository", error.message ?: "")
         when (error) {
             is IOException -> {
                 if (!networkChecker.hasInternetConnection()) {

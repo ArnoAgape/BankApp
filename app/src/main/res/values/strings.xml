@@ -23,7 +23,7 @@
 
   <string name="transfer_success">Virement réussi</string>
   <string name="transfer_failed">Solde insuffisant</string>
-  <string name="empty_amount">Le montant doit être supérieur à 1 €</string>
+  <string name="empty_amount">Le montant doit être supérieur à 0 €</string>
 
   <string name="no_internet">Vérifiez votre connexion Internet</string>
   <string name="error_server">Le serveur est inaccessible, réessayez plus tard</string>

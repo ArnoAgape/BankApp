@@ -18,9 +18,22 @@ import org.junit.Test
 import retrofit2.Response
 import kotlin.test.assertTrue
 
+/**
+ * Unit tests for `AuraRepository` using a fake implementation of `AuraClient`.
+ *
+ * These tests verify that:
+ * - Login, user data, and transfer operations behave as expected
+ * - Proper exceptions are thrown for known server errors
+ *
+ * Uses `FakeAuraRepositoryNoNetwork` which skips network checking logic
+ * and focuses on repository behavior.
+ */
 @OptIn(ExperimentalCoroutinesApi::class)
 class AuraRepositoryTest {
 
+    /**
+     * Verifies that a successful login returns `true`.
+     */
     @Test
     fun fetchLoginData_shouldEmitTrue_whenLoginSucceeds() = runTest {
         val fakeClient = object : FakeAuraClient() {
@@ -37,6 +50,9 @@ class AuraRepositoryTest {
         }
     }
 
+    /**
+     * Verifies that user account data is fetched and mapped correctly.
+     */
     @Test
     fun fetchUserData_shouldEmitTheListOfUser() = runTest {
         val fakeClient = object : FakeAuraClient() {
@@ -57,6 +73,9 @@ class AuraRepositoryTest {
         }
     }
 
+    /**
+     * Verifies that a successful transfer returns `true`.
+     */
     @Test
     fun fetchTransferData_shouldEmitTrue_whenTransferSucceeds() = runTest {
         val fakeClient = object : FakeAuraClient() {
@@ -73,6 +92,9 @@ class AuraRepositoryTest {
         }
     }
 
+    /**
+     * Verifies that a server error with status 500 triggers `UnknownUserException`.
+     */
     @Test
     fun fetchTransferData_shouldThrowUnknownUserException_whenServerReturns500() = runTest {
 

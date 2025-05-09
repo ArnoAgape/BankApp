@@ -16,6 +16,13 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
+/**
+ * Unit tests for `LoginViewModel`.
+ *
+ * Verifies the expected state flow:
+ * - From Idle to Loading to Success
+ * when login credentials are valid.
+ */
 @ExperimentalCoroutinesApi
 class LoginViewModelTest {
 
@@ -36,6 +43,9 @@ class LoginViewModelTest {
         Dispatchers.resetMain()
     }
 
+    /**
+     * Tests that login emits `Idle → Loading → Success` with valid credentials.
+     */
     @Test
     fun shouldEmitIdleThenLoadingThenSuccess() = runTest {
         viewModel.uiState.test {

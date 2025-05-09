@@ -21,6 +21,15 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
+/**
+ * `TransferViewModel` handles the business logic for performing money transfers.
+ *
+ * It receives the sender's ID, recipient's ID, and amount to send, then delegates the transfer
+ * operation to the repository. It exposes a `uiState` for reactive UI updates and uses a `Channel`
+ * to send one-time events such as toasts.
+ *
+ * @param dataRepository The repository interface used to perform transfer operations.
+ */
 @HiltViewModel
 class TransferViewModel @Inject constructor(private val dataRepository: AuraRepositoryInterface) :
     ViewModel() {
@@ -31,18 +40,49 @@ class TransferViewModel @Inject constructor(private val dataRepository: AuraRepo
     private val _eventsFlow = Channel<TransferEvent>()
     val eventsFlow = _eventsFlow.receiveAsFlow()
 
+    /**
+     * Sends a one-time toast event to the UI using a string resource.
+     *
+     * @param msg The string resource ID to be shown in the toast.
+     */
     private fun sendToast(@StringRes msg: Int) {
         _eventsFlow.trySend(TransferEvent.ShowToast(msg))
     }
 
+    /**
+     * Called every time the login or password fields are updated.
+     * Enables or disables the login button based on input validity.
+     *
+     * @param recipient The recipient ID.
+     * @param amount The amount.
+     */
     fun onLoginFieldsChanged(recipient: String, amount: String) {
         _uiState.update { it.copy(
             isTransferEnabled = recipient.isNotBlank() && amount.isNotBlank())
         }
     }
 
+    /**
+     * Initiates a money transfer from the sender to the recipient.
+     *
+     * This function:
+     * - Validates the amount is not zero
+     * - Updates the UI state to `Loading`
+     * - Calls the repository to perform the transfer
+     * - Updates the state to `Success` or `Error.InsufficientBalance` based on the result
+     * - Sends a toast message corresponding to the result or error
+     *
+     * Handles common errors such as:
+     * - No internet connection
+     * - Unknown recipient
+     * - Server unavailability
+     *
+     * @param sender The ID of the sender account.
+     * @param recipient The ID of the recipient account.
+     * @param amount The transfer amount as a string (converted to `Double`).
+     */
     fun transferData(sender: String, recipient: String, amount: String) {
-        if (amount < "1") {
+        if (amount == "0") {
             sendToast(R.string.empty_amount)
             _uiState.update { it.copy(result = State.Idle) }
             return
@@ -76,6 +116,12 @@ class TransferViewModel @Inject constructor(private val dataRepository: AuraRepo
     }
 }
 
+/**
+ * Represents the UI state for the transfer screen.
+ *
+ * @param result The current home state (Idle, Loading, Success, or Error)
+ * @param isTransferEnabled Indicates whether the transfer button should be enabled
+ */
 data class TransferUIState(
     val result: State = State.Idle,
     val isTransferEnabled: Boolean = false

@@ -18,6 +18,13 @@ import org.junit.Before
 import org.junit.Test
 import kotlin.test.DefaultAsserter.fail
 
+/**
+ * Unit tests for `HomeViewModel` using a `FakeAuraRepository` and `FakeLocalApiService`.
+ *
+ * These tests ensure that:
+ * - The ViewModel emits the correct sequence of states: Idle → Loading → Success
+ * - The balance and main account information is correctly retrieved and validated
+ */
 @ExperimentalCoroutinesApi
 class HomeViewModelTest {
 
@@ -38,6 +45,10 @@ class HomeViewModelTest {
         Dispatchers.resetMain()
     }
 
+    /**
+     * Tests that calling `getUserId` with a valid ID emits `Success`
+     * and that the main account has the expected balance.
+     */
     @Test
     fun getUserId_with1234_shouldEmitSuccessWithCorrectBalance() = runTest {
 
@@ -46,7 +57,7 @@ class HomeViewModelTest {
             val initial = awaitItem()
             assertEquals(State.Idle, initial.result)
 
-            viewModel.getUserId("5678")
+            viewModel.getUserId("1234")
 
             val loading = awaitItem()
             assertEquals(State.Loading, loading.result)

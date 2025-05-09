@@ -21,6 +21,15 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
+/**
+ * `HomeViewModel` manages the UI state of the `HomeActivity`.
+ *
+ * It is responsible for fetching the user's account data (e.g., balances)
+ * from the repository using their user ID. The result is exposed through a `StateFlow`
+ * to update the UI reactively, and one-time events like toasts are sent through a `Channel`.
+ *
+ * @param dataRepository The repository interface used to fetch user account data.
+ */
 @HiltViewModel
 class HomeViewModel @Inject constructor(private val dataRepository: AuraRepositoryInterface) :
     ViewModel() {
@@ -31,10 +40,26 @@ class HomeViewModel @Inject constructor(private val dataRepository: AuraReposito
     private val _eventsFlow = Channel<HomeEvent>()
     val eventsFlow = _eventsFlow.receiveAsFlow()
 
+    /**
+     * Sends a one-time toast event to the UI using a string resource.
+     *
+     * @param msg The string resource ID to be shown in the toast.
+     */
     private fun sendToast(@StringRes msg: Int) {
         _eventsFlow.trySend(HomeEvent.ShowToast(msg))
     }
 
+    /**
+     * Fetches user account data based on the given user ID.
+     *
+     * This function:
+     * - Updates the UI state to `Loading`
+     * - Calls the repository to fetch a list of user accounts
+     * - Updates the state with the retrieved data and sets `Success`
+     * - Handles and maps errors (e.g., no internet, server error) to appropriate toast messages
+     *
+     * @param id The ID of the user whose account data should be retrieved.
+     */
     fun getUserId(id: String) {
         _uiState.update {
             it.copy(result = State.Loading)
@@ -65,6 +90,12 @@ class HomeViewModel @Inject constructor(private val dataRepository: AuraReposito
     }
 }
 
+/**
+ * Represents the UI state for the login screen.
+ *
+ * @param result The current home state (Idle, Loading, Success, or Error)
+ * @param balance The current balance to display
+ */
 data class HomeUIState(
     val result: State = State.Idle,
     val balance: List<UserModel> = emptyList()

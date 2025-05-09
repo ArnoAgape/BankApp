@@ -16,6 +16,12 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
+/**
+ * Unit tests for `TransferViewModel`.
+ *
+ * Ensures that the transfer logic triggers the correct state transitions
+ * and responds correctly to successful transfers.
+ */
 @ExperimentalCoroutinesApi
 class TransferViewModelTest {
 
@@ -36,6 +42,9 @@ class TransferViewModelTest {
         Dispatchers.resetMain()
     }
 
+    /**
+     * Tests that a valid transfer emits `Idle → Loading → Success`.
+     */
     @Test
     fun shouldEmitIdleThenLoadingThenSuccess() = runTest {
         viewModel.uiState.test {

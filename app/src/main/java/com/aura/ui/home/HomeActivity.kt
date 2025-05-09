@@ -23,6 +23,17 @@ import com.aura.ui.transfer.TransferActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+/**
+ * `HomeActivity` is the main screen of the application after login.
+ * It displays the user's main account balance, allows retrying data fetch,
+ * and navigating to the transfer screen.
+ *
+ * This activity observes two flows from the `HomeViewModel`:
+ * - `uiState`: for tracking loading state and user data
+ * - `eventsFlow`: for one-time events like showing toast messages
+ *
+ * @see HomeViewModel
+ */
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
 
@@ -53,6 +64,11 @@ class HomeActivity : AppCompatActivity() {
         setupTransferButton()
     }
 
+    /**
+     * Sets up the "Transfer" button.
+     * Retrieves the user's ID and main account balance,
+     * then launches the `TransferActivity` with those values.
+     */
     private fun setupTransferButton() {
         var mainUser: UserModel? = null
         binding.transfer.setOnClickListener {
@@ -63,6 +79,10 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Sets up the "Try Again" button which appears when an error occurs.
+     * It re-triggers the data fetching logic from the ViewModel.
+     */
     private fun setupRetryButton() {
         binding.tryAgain.setOnClickListener {
             val userId = intent.getStringExtra(USER_ID)
@@ -73,10 +93,19 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Displays a short toast message on the screen.
+     *
+     * @param message The message to show.
+     */
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
+    /**
+     * Observes the UI state flow from the ViewModel.
+     * Updates the screen based on the current state: loading, success, or error.
+     */
     private fun setupUiStateObserver() {
         viewModel.getUserId(intent.getStringExtra(USER_ID).toString())
         lifecycleScope.launch {
@@ -111,6 +140,9 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Observes one-time events from the ViewModel such as toast messages.
+     */
     private fun setupEventsObserver() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -125,6 +157,13 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+
+    /**
+     * Updates the UI with the user's main account balance.
+     * Only shows the account marked as `main = true`.
+     *
+     * @param userDetails The list of user accounts returned from the server.
+     */
     private fun updateCurrentBalance(userDetails: List<UserModel>) {
         val mainAccount = userDetails.find { it.main }
         val balance = mainAccount?.balance ?: 0.0
@@ -132,11 +171,17 @@ class HomeActivity : AppCompatActivity() {
         binding.amount.text = getString(R.string.balance_display, balance)
     }
 
+    /**
+     * Inflates the top menu of the screen (includes disconnect and reload options).
+     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.home_menu, menu)
         return true
     }
 
+    /**
+     * Handles menu item actions like "disconnect" or "reload".
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.disconnect -> {
@@ -157,6 +202,10 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Static method to start this activity from another context,
+     * passing the user ID and their balance as extras.
+     */
     companion object {
         fun startActivity(context: Context, userId: String, balance: Double) {
             val intent = Intent(context, HomeActivity::class.java).apply {

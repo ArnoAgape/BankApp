@@ -3,10 +3,12 @@ package com.aura.ui.transfer
 import app.cash.turbine.test
 import com.aura.FakeAuraRepository
 import com.aura.FakeLocalApiService
+import com.aura.ui.home.HomeViewModel
 import com.aura.ui.states.State
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -24,16 +26,14 @@ import org.junit.Test
 @ExperimentalCoroutinesApi
 class TransferViewModelTest {
 
-    private lateinit var viewModel: TransferViewModel
-    private val testDispatcher = StandardTestDispatcher()
+    private val testDispatcher = UnconfinedTestDispatcher()
     private var api = FakeLocalApiService()
+    val repository = FakeAuraRepository(api)
+    private val viewModel = TransferViewModel(repository)
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        val repository = FakeAuraRepository(api)
-        viewModel = TransferViewModel(repository)
-        api = FakeLocalApiService()
     }
 
     @After

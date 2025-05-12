@@ -35,6 +35,10 @@ android {
   buildFeatures {
     viewBinding = true
   }
+  tasks.withType<Test> {
+    jvmArgs("-XX:+EnableDynamicAgentLoading")
+  }
+
 }
 
 dependencies {
@@ -69,6 +73,8 @@ dependencies {
   testImplementation ("org.mockito:mockito-core:5.2.0")
   testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
   testImplementation("androidx.test:core:1.6.1")
+  testImplementation("io.mockk:mockk:1.14.2")
+  testImplementation("org.slf4j:slf4j-simple:2.0.9")
   androidTestImplementation("androidx.test.ext:junit:1.2.1")
   androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
   testImplementation(kotlin("test"))

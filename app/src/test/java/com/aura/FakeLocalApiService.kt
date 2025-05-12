@@ -1,4 +1,4 @@
-package com.aura.repository
+package com.aura
 
 import com.aura.ui.domain.model.UserModel
 import kotlinx.coroutines.flow.Flow

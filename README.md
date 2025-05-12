@@ -40,27 +40,6 @@ The app allows users to:
 
 ---
 
-## 🏗️ Project Structure
-
-├── ui/
-│   ├── login/             # LoginActivity, LoginViewModel
-│   ├── home/              # HomeActivity, HomeViewModel
-│   └── transfer/          # TransferActivity, TransferViewModel
-│
-├── data/
-│   └── network/
-│       ├── AuraClient     # Retrofit API interface
-│       └── repository/    # AuraRepository
-│
-├── domain/
-│   └── model/             # LoginModel, UserModel, TransferModel
-│
-├── states/                # State.kt, Error classes (e.g., NoConnectionException)
-│
-└── tests/                 # Unit tests using Turbine and fake repositories
-
----
-
 ## 🔧 Tech Stack
 
 - Kotlin
@@ -154,3 +133,10 @@ Passionate about cycling, minimalism & clean code.
 ## 📄 License
 
 MIT License – free to use, modify, and distribute.
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[android]: https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white
+[kotlin]: https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=Kotlin&logoColor=white
+[androidstudio]: https://img.shields.io/badge/Android%20Studio-3DDC84?style=for-the-badge&logo=androidstudio&logoColor=white
+[gradle]: https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white

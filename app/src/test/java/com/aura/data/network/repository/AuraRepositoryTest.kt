@@ -10,7 +10,8 @@ import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import junit.framework.TestCase
+import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
@@ -48,7 +49,7 @@ class AuraRepositoryTest {
         coEvery { repo.fetchLoginData("1234", "p@sswOrd") }.returns(flow { emit(true) })
 
         repo.fetchLoginData("1234", "p@sswOrd").test {
-            TestCase.assertTrue(awaitItem())
+            assertTrue(awaitItem())
             awaitComplete()
         } // returns true
 
@@ -73,10 +74,10 @@ class AuraRepositoryTest {
 
         repo.fetchUserData("1234").test {
             val result = awaitItem()
-            TestCase.assertEquals(1, result.size)
-            TestCase.assertEquals("1234", result[0].id)
-            TestCase.assertEquals(100.0, result[0].balance, 0.01)
-            TestCase.assertTrue(result[0].main)
+            assertEquals(1, result.size)
+            assertEquals("1234", result[0].id)
+            assertTrue(result[0].main)
+            assertEquals(100.0, result[0].balance, 0.01)
             awaitComplete()
         } // returns model
 
@@ -95,7 +96,7 @@ class AuraRepositoryTest {
         coEvery { repo.fetchTransferData("1234", "5678", 100.0) }.returns(flow { emit(true) })
 
         repo.fetchTransferData("1234", "5678", 100.0).test {
-            TestCase.assertTrue(awaitItem())
+            assertTrue(awaitItem())
             awaitComplete()
         } // returns true
 

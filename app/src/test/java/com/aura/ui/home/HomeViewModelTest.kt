@@ -27,15 +27,13 @@ import kotlin.test.DefaultAsserter
 class HomeViewModelTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
-    private lateinit var viewModel: HomeViewModel
     private var api = FakeLocalApiService()
+    val repository = FakeAuraRepository(api)
+    private val viewModel = HomeViewModel(repository)
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        val repository = FakeAuraRepository(api)
-        viewModel = HomeViewModel(repository)
-        api = FakeLocalApiService()
     }
 
     @After

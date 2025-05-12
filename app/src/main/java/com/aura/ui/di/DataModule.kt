@@ -3,6 +3,7 @@ package com.aura.ui.di
 import android.content.Context
 import com.aura.ui.data.network.AuraClient
 import com.aura.ui.data.network.repository.AuraRepository
+import com.aura.ui.states.errors.NetworkStatusChecker
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,7 +17,7 @@ object DataModule {
 
     @Singleton
     @Provides
-    fun provideLoginRepository(dataClient: AuraClient, @ApplicationContext context: Context): AuraRepository {
-        return AuraRepository(context, dataClient)
+    fun provideLoginRepository(dataClient: AuraClient, networkStatusChecker: NetworkStatusChecker): AuraRepository {
+        return AuraRepository(networkStatusChecker, dataClient)
     }
 }

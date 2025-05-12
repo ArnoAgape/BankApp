@@ -33,9 +33,7 @@ import javax.inject.Singleton
  * @param dataService Retrofit client for API communication
  */
 @Singleton
-class AuraRepository @Inject constructor(@ApplicationContext context: Context, private val dataService: AuraClient) : AuraRepositoryInterface {
-
-    private val networkChecker = NetworkStatusChecker(context)
+class AuraRepository @Inject constructor(private val networkStatusChecker: NetworkStatusChecker, private val dataService: AuraClient) : AuraRepositoryInterface {
 
     /**
      * Attempts to log in the user with the provided ID and password.
@@ -55,7 +53,7 @@ class AuraRepository @Inject constructor(@ApplicationContext context: Context, p
     }.catch { error ->
         when (error) {
             is IOException -> {
-                if (!networkChecker.hasInternetConnection()) {
+                if (!networkStatusChecker.hasInternetConnection()) {
                     throw NoConnectionException() // No Internet
                 } else {
                     throw ServerUnavailableException() // Server error
@@ -88,7 +86,7 @@ class AuraRepository @Inject constructor(@ApplicationContext context: Context, p
     }.catch { error ->
         when (error) {
             is IOException -> {
-                if (!networkChecker.hasInternetConnection()) {
+                if (!networkStatusChecker.hasInternetConnection()) {
                 throw NoConnectionException() // No Internet
             } else {
                 throw ServerUnavailableException()
@@ -116,6 +114,7 @@ class AuraRepository @Inject constructor(@ApplicationContext context: Context, p
     override fun fetchTransferData(sender: String, recipient: String, amount: Double): Flow<Boolean> = flow {
 
         val response = dataService.transferDetails(TransferModel(sender, recipient, amount))
+        emit (response.isSuccessful)
 
         if (response.isSuccessful) {
             val body = response.body() ?: throw Exception()
@@ -133,7 +132,7 @@ class AuraRepository @Inject constructor(@ApplicationContext context: Context, p
     }.catch { error ->
         when (error) {
             is IOException -> {
-                if (!networkChecker.hasInternetConnection()) {
+                if (!networkStatusChecker.hasInternetConnection()) {
                     throw NoConnectionException()
                 } else {
                     throw ServerUnavailableException()
